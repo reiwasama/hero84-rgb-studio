@@ -49,7 +49,7 @@ Edit `src/`; the build produces the standalone HTML. See [CONTRIBUTING.md](CONTR
 
 ## License and assets
 
-Project code is MIT licensed. Unofficial and not affiliated with AULA, Razer or character rights holders. Character-inspired scenes are stylized fan effects; the code license does not grant rights to third-party names, characters or trademarks. No vendor driver bundle, captured USB logs, original GIF/video, or video-derived Astolfo animation is distributed in this repository. Contributions must have redistribution permission.
+Project code is MIT licensed. Unofficial and not affiliated with AULA, Razer or character rights holders. Character-inspired scenes are stylized fan effects; the code license does not grant rights to third-party names, characters or trademarks. No vendor driver bundle, captured USB logs, or copyrighted animations are distributed in this repository. Contributions must have redistribution permission.
 
 ## Disclaimer
 
