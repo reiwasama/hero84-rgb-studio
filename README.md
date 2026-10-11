@@ -21,6 +21,17 @@ Live frames are limited to three packets and up to 21 color groups to avoid obse
 
 The page must remain open. The Windows launcher reduces background throttling but cannot run effects during sleep or after the app closes. Browser storage deletion also deletes recovery backups. Preview and automated tests do not prove compatibility with an untested keyboard.
 
+## How to test your keyboard's compatibility
+
+If you have a HERO84 HE but aren't sure about the firmware version, follow these safe steps to test compatibility:
+
+1. Open `chrome://device-log` in Chrome/Edge and reconnect your keyboard. Check if the USB ID matches **372E:103E**.
+2. Open the app, click **Connect keyboard**, and select your device. If it connects without errors, WebHID communication is working.
+3. **Safe Light Test:** Go to the Effect Studio, paint just **one single key** (like the Spacebar) with a bright color, and press **Play my effect**. 
+   - If the correct key lights up, your layout and firmware are fully compatible.
+   - If a wrong key lights up or nothing happens, your firmware version might be different. Please open an Issue and share your firmware raw value.
+
+
 ## Effect Studio
 
 Paint keys by dragging, duplicate frames, adjust durations and enable smooth transitions. Up to 60 frames, 50–5000 ms each. Sample an existing effect to start editing, or import/export an effect JSON file. Press **Play my effect** to preview and **Start effect** to send it to your keyboard.
@@ -39,6 +50,12 @@ Edit `src/`; the build produces the standalone HTML. See [CONTRIBUTING.md](CONTR
 ## License and assets
 
 Project code is MIT licensed. Unofficial and not affiliated with AULA, Razer or character rights holders. Character-inspired scenes are stylized fan effects; the code license does not grant rights to third-party names, characters or trademarks. No vendor driver bundle, captured USB logs, original GIF/video, or video-derived Astolfo animation is distributed in this repository. Contributions must have redistribution permission.
+
+## Disclaimer
+
+This is an independent, open-source project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with AULA or any of its subsidiaries or its affiliates. The official AULA website can be found at : www.aulastar.com/
+
+The names AULA and AULA HERO84 HE as well as related names, marks, emblems and images are registered trademarks of their respective owners.
 
 ## Türkçe
 
