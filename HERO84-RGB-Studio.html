@@ -1,0 +1,702 @@
+<!doctype html><html lang="tr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HERO84 · RGB Studio v0.17</title>
+<style>
+:root{color-scheme:dark;font:15px 'Segoe UI',sans-serif;background:#090c13;color:#edf1fc}*{box-sizing:border-box}body{margin:0;padding:32px;max-width:1440px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:20px}small,.muted{color:#94a3bb}small{letter-spacing:3px}h1{font-size:35px;letter-spacing:-1px;margin:8px 0}h2{font-size:18px;margin:0 0 18px}p{line-height:1.6}button,input,select{font:inherit}button,select,input[type=search],input[type=text]{border:1px solid #303a50;border-radius:10px;background:#1c2535;color:#e9efff;padding:11px 14px}button{cursor:pointer}button:hover{border-color:#9ea7ff}button:disabled{opacity:.4;cursor:default}.primary{background:#b7b8ff;color:#161530;border:0;font-weight:650}.panel{border:1px solid #263044;background:#111724;border-radius:20px;padding:23px}.layout{display:grid;grid-template-columns:1fr 310px;gap:20px;margin-top:24px}.preview{background:radial-gradient(ellipse at top,#202448,#0d111d 70%);padding:30px 14px 15px}canvas{width:100%;display:block;aspect-ratio:690/280}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.preview .toolbar{justify-content:space-between;padding:12px}.badge{border:1px solid #3e446d;color:#c7c9ff;border-radius:50px;padding:6px 12px;font-size:12px}#status{font-size:13px;max-width:600px;color:#b8c8e1;line-height:1.5}.controls label{display:flex;justify-content:space-between;align-items:center;margin-top:22px;color:#bbc6d9}.controls input[type=range]{width:100%;accent-color:#b1afff;margin:12px 0}.controls select{width:100%;margin-top:10px}input[type=color]{width:55px;height:36px;border:0;background:none}.filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.filters button{font-size:13px;padding:7px 12px}.active{border-color:#b7b8ff!important;background:#303354!important}.effects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.effect{text-align:left;padding:14px;min-height:88px;background:#151c2b}.effect span{display:block;font-size:12px;color:#95a5bc;margin-top:7px}.effect i{display:block;height:4px;border-radius:4px;background:linear-gradient(90deg,#87e5ff,#ba8bff,#ff72ab);margin-bottom:12px}#search{width:100%;margin-top:15px}aside .panel{margin-bottom:18px}.hint{font-size:12px;line-height:1.7;color:#899ab5}details{margin-top:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#9eb7d9;font-size:12px}#profiles{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}#profiles button{font-size:12px}footer{color:#75859c;font-size:12px;margin:20px 0}@media(max-width:1050px){.effects{grid-template-columns:repeat(3,1fr)}}@media(max-width:800px){body{padding:16px}.layout{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.effects{grid-template-columns:repeat(2,1fr)}}
+</style>
+<header><div><small>HERO84 / RGB STUDIO</small><h1>Işığı kendine göre ayarla.</h1><div class="muted"><span id="libraryStats">104 efekt · 84 tuş</span></div></div><div class="toolbar"><select id="language" aria-label="Language"><option value="tr">Türkçe</option><option value="en">English</option></select><span class="badge">v0.17 · 104 efekt</span><button id="connect" class="primary">Klavyeye bağlan</button></div></header>
+<div class="layout"><main><section class="panel preview"><canvas tabindex="0" id="preview" width="1380" height="560" aria-label="Seçili efektin 84 tuş üzerindeki önizlemesi"></canvas><div class="toolbar"><div><b id="effectTitle">İpeksi Rain</b><p id="status" role="status" aria-live="polite">Önizleme açık. Klavyeye henüz veri gönderilmiyor.</p></div><div class="toolbar"><button id="start" class="primary" disabled>Efekti başlat</button><button id="stop" disabled>Durdur ve geri yükle</button></div></div></section>
+<section id="gamePanel" class="panel" style="margin-top:20px" hidden><h2>Mario · Klavye Macerası</h2><p id="gameScore" role="status">Otomatik demo</p><div class="toolbar"><button id="gamePlay" class="primary">Oyunu oyna</button><button id="gameDemo">Otomatik demo</button><button id="gamePause">Duraklat</button><button id="gameRestart">Yeniden başlat</button></div><p class="hint">← → / A D: yürü · ↑ / W / Boşluk: zıpla · R: yeniden başlat · Esc: duraklat. Altınları topla, düşmanların üzerine zıpla ve yeşil bayrağa ulaş. Kırmızı-mavi ışık sensin. Oynamak için “Oyunu oyna”ya bas; tuşlar sayfa odaktayken çalışır. Oyunda parlaklık ve doygunluk ayarları uygulanır.</p></section><section class="panel" style="margin-top:20px"><div class="toolbar" style="justify-content:space-between"><h2 style="margin:0">Efekt kütüphanesi</h2><div class="toolbar"><span id="count" class="muted"></span><button id="randomEffect">Beni şaşırt</button></div></div><input id="search" type="search" placeholder="Efekt ara…" aria-label="Efekt ara"><div class="filters" id="filters"></div><div class="effects" id="effects"></div></section><section class="panel" style="margin-top:20px"><h2>Efekt Stüdyosu</h2><p class="hint">Bir renk seç, tuşları tıklayıp sürükleyerek boya. Kareyi çoğalt, hareketi çiz, süreyi ayarla. En fazla 60 kare. Animasyon üstteki önizlemede oynar.</p><label>Efekt adı <input id="studioName" maxlength="60"></label><div class="toolbar"><input id="studioBrush" type="color" aria-label="Fırça rengi"><button id="studioFill">Tümünü boya</button><button id="studioClear">Kareyi temizle</button><button id="studioBack">Geri al</button></div><canvas id="studioCanvas" width="690" height="280" aria-label="Tuş boyama alanı" style="width:100%;height:auto;touch-action:none"></canvas><div id="studioFrames" class="toolbar" style="flex-wrap:wrap"></div><p id="studioCount" class="muted"></p><div class="toolbar"><button id="studioAdd">Kareyi çoğalt</button><button id="studioDelete">Kareyi sil</button><label>Kare süresi (ms) <input id="studioDuration" type="number" min="50" max="5000" step="50"></label><label><input id="studioSmooth" type="checkbox" checked>Yumuşak geçiş</label></div><div class="toolbar"><button id="studioCapture">Seçili efektten örnek al</button><button id="studioPlay" class="primary">Efektimi oynat</button><button id="studioExport">Efekti indir</button><label>Efekt dosyası aç <input id="studioImport" type="file" accept=".json,application/json"></label></div><p id="studioMessage" role="status" class="hint">Çalışman bu tarayıcıda saklanır; indirerek başkalarıyla paylaşabilirsin.</p></section></main>
+<aside><section class="panel controls"><h2>Üst ışık barı · Deneme</h2><label><span>Efektle eşleştir · deneysel</span><input id="barSync" type="checkbox"></label><label for="barSyncStyle">Eşleme görünümü</label><select id="barSyncStyle"><option value="3">En yoğun rengi takip et</option><option value="palette">En yoğun 3 renk arasında geç</option><option value="4">Efekt renginde nefes</option><option value="1">Efekt renginde akış</option></select><p class="hint">Tuş efekti çalışırken saniyede en fazla 1 güncelleme. Tek renk üzerinden eşlenir; desen kopyalanmaz. Tiki kapatınca veya Durdur deyince önceki bar ayarı geri gelir. Bar parlaklığı sıfırsa önce bar panelinden artır.</p><p id="barInfo" class="hint">Önce bağlan, tuş animasyonunu durdur ve bar ayarını oku. Canlı bar animasyonu cihaz tarafından desteklenmiyor.</p><button id="barRead" disabled>Bar ayarını oku</button><label for="barMode">Bar efekti</label><select id="barMode"><option value="keep">Okunan modu koru</option><option value="0">Kapalı</option><option value="3">Sabit ışık</option><option value="1">Sürekli akış</option><option value="4">Nefes</option><option value="2">Neon</option><option value="5">Koşan ışık</option></select><label for="barSpeed">Hız kademesi</label><select id="barSpeed"><option value="keep">Okunan hızı koru</option><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option><option value="4">5</option></select><label for="barColor">Bar rengi <input id="barColor" type="color" value="#ffffff"></label><label for="barLevel">Parlaklık kademesi</label><select id="barLevel"><option value="keep">Okunan parlaklığı koru</option><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option><option value="4">5</option></select><p class="hint">Sağa akmayı durdurmak için Sabit ışık seç. Efekt, renk ve kademeler Uygula ile gönderilir. Ayrı yön seçeneği yoktur. Bar değişikliği ayrı yedeklenir.</p><button id="barApply" disabled>Bar ayarını uygula</button><button id="barRestore" disabled>Eski bar ayarına dön</button></section><section class="panel controls"><h2>İnce ayar</h2><label for="saturation">Doygunluk <output id="saturationValue">150%</output></label><input id="saturation" type="range" min="0" max="250" value="150"><div class="toolbar"><button id="vivid">Canlı renkler</button><button id="neutral">Doğal renkler</button></div><p class="hint">Doygunluk renklerin solukluğunu azaltır; parlaklık ayrı ayarlanır. Beyaz alanlar beyaz kalır.</p><label for="speed">Hız <output id="speedValue">1×</output></label><input id="speed" type="range" min="10" max="300" value="100"><label for="brightness">Parlaklık <output id="brightnessValue">100%</output></label><input id="brightness" type="range" min="0" max="100" value="100"><label for="scale">Desen sıklığı <output id="scaleValue">1×</output></label><input id="scale" type="range" min="30" max="250" value="100"><label for="color">Ana renk <input type="color" id="color" value="#a68bff"></label><label for="color2">İkinci renk <input type="color" id="color2" value="#38d9ff"></label><label for="fps">Güncelleme hızı</label><select id="fps"><option value="8">8 kare/sn · düşük yük</option><option value="12">12 kare/sn · düşük hız</option><option value="20" selected>20 kare/sn · dengeli</option></select><label><span>Ters yön</span><input id="reverse" type="checkbox"></label><p class="hint">Tüm efektler uyumlu gönderim sınırında çalışır. İnce renk tonları gerektiğinde birleştirilir.</p></section>
+<section class="panel"><h2>Favorilerin</h2><div class="toolbar"><button id="favorite">☆ Favoriye ekle</button><button id="save">Profili kaydet</button></div><div id="profiles"></div><p class="hint">Profiller ve favoriler bu tarayıcıda saklanır.</p></section><section class="panel"><h2>Yalnızca ışık kontrolü</h2><p class="hint">Hz/polling rate, Rapid Trigger, tuş hassasiyeti, makrolar ve tuş atamaları değiştirilmez. Menüdeki kare/sn yalnızca RGB animasyon hızıdır.</p><h2>İlk kullanım</h2><p class="hint">Chrome veya Edge ile aç. AULA sürücüsü ve diğer RGB uygulamaları kapalı olsun. Bağlan, bir efekt seç ve başlat.</p><p class="hint">Üst barın mevcut modunda renk/parlaklık kontrolü ayrı paneldedir; canlı efekt eşleme desteklenmez. Efektler sayfa açıkken çalışır. Sekmeyi kapatmadan önce “Durdur ve geri yükle” kullan.</p><button id="recover" disabled>Yedekten geri yükle</button><p class="hint">Beklenmedik kapanmadan sonra aynı tarayıcıda bağlanıp yedeği geri yükleyebilirsin.</p></section></aside></div>
+<details><summary>Bağlantı günlüğü</summary><pre id="log"></pre></details><section class="panel"><h2>Alta alarak çalıştır</h2><p>HERO84-Baslat.cmd ile ayrı uygulama penceresini açıp alta alabilirsin. Arka plan zamanlayıcı kısıtlamaları bu pencerede azaltılır. Bilgisayar uykudayken veya pencere kapalıyken çalışmaz. Eski pencerede önce Durdur ve geri yükle yap.</p></section><footer>HERO84 HE · USB 372E:103E · Yerel uygulama, sunucuya veri göndermez. Canlı RGB kullanıcı tarafından doğrulandı. Mario mini oyunu ilk sürüm.</footer>
+<script>
+const TRANSLATIONS={"Işığı kendine göre ayarla.": "Make the light your own.", "Klavyeye bağlan": "Connect keyboard", "İpeksi Rain": "Silky Rain", "Önizleme açık. Klavyeye henüz veri gönderilmiyor.": "Preview only. Nothing is being sent to your keyboard yet.", "Efekti başlat": "Start effect", "Durdur ve geri yükle": "Stop and restore", "Mario · Klavye Macerası": "Mario · Keyboard Adventure", "Otomatik demo": "Auto demo", "Oyunu oyna": "Play game", "Duraklat": "Pause", "Yeniden başlat": "Restart", "← → / A D: yürü · ↑ / W / Boşluk: zıpla · R: yeniden başlat · Esc: duraklat. Altınları topla, düşmanların üzerine zıpla ve yeşil bayrağa ulaş. Kırmızı-mavi ışık sensin. Oynamak için “Oyunu oyna”ya bas; tuşlar sayfa odaktayken çalışır. Oyunda parlaklık ve doygunluk ayarları uygulanır.": "← → / A D: move · ↑ / W / Space: jump · R: restart · Esc: pause. Collect coins, jump on enemies and reach the green flag. You are the red-blue light. Click Play game; controls require page focus. Brightness and saturation apply to the game.", "Efekt kütüphanesi": "Effect library", "Beni şaşırt": "Surprise me", "Efekt Stüdyosu": "Effect Studio", "Bir renk seç, tuşları tıklayıp sürükleyerek boya. Kareyi çoğalt, hareketi çiz, süreyi ayarla. En fazla 60 kare. Animasyon üstteki önizlemede oynar.": "Choose a color, then click or drag across keys to paint. Duplicate frames, draw movement and adjust timing. Up to 60 frames. Play your animation in the preview above.", "Efekt adı": "Effect name", "Tümünü boya": "Fill frame", "Kareyi temizle": "Clear frame", "Geri al": "Undo", "Kareyi çoğalt": "Duplicate frame", "Kareyi sil": "Delete frame", "Kare süresi (ms)": "Frame duration (ms)", "Yumuşak geçiş": "Smooth transitions", "Seçili efektten örnek al": "Capture selected effect", "Efektimi oynat": "Preview my effect", "Efekti indir": "Export effect", "Efekt dosyası aç": "Import effect", "Çalışman bu tarayıcıda saklanır; indirerek başkalarıyla paylaşabilirsin.": "Your work stays in this browser. Export it to back it up or share it.", "Üst ışık barı · Deneme": "Top light bar · Experimental", "Efektle eşleştir · deneysel": "Sync with effect · experimental", "Eşleme görünümü": "Sync style", "En yoğun rengi takip et": "Follow dominant color", "En yoğun 3 renk arasında geç": "Cycle top 3 colors", "Efekt renginde nefes": "Breathe in effect color", "Efekt renginde akış": "Flow in effect color", "Tuş efekti çalışırken saniyede en fazla 1 güncelleme. Tek renk üzerinden eşlenir; desen kopyalanmaz. Tiki kapatınca veya Durdur deyince önceki bar ayarı geri gelir. Bar parlaklığı sıfırsa önce bar panelinden artır.": "At most one bar update per second while an effect runs. Sync uses one color at a time, not the key pattern. Uncheck or stop to restore the previous bar settings. Raise bar brightness first if it is zero.", "Önce bağlan, tuş animasyonunu durdur ve bar ayarını oku. Canlı bar animasyonu cihaz tarafından desteklenmiyor.": "Connect, stop the key animation, then read the bar settings. The device does not report live per-LED bar support.", "Bar ayarını oku": "Read bar settings", "Bar efekti": "Bar effect", "Okunan modu koru": "Keep current mode", "Kapalı": "Off", "Sabit ışık": "Static", "Sürekli akış": "Continuous flow", "Nefes": "Breathing", "Koşan ışık": "Chase", "Hız kademesi": "Speed level", "Okunan hızı koru": "Keep current speed", "Bar rengi": "Bar color", "Parlaklık kademesi": "Brightness level", "Okunan parlaklığı koru": "Keep current brightness", "Sağa akmayı durdurmak için Sabit ışık seç. Efekt, renk ve kademeler Uygula ile gönderilir. Ayrı yön seçeneği yoktur. Bar değişikliği ayrı yedeklenir.": "Choose Static to stop the chase. Apply sends the selected mode, color and levels. There is no separate direction control. Bar changes have their own backup.", "Bar ayarını uygula": "Apply bar settings", "Eski bar ayarına dön": "Restore bar settings", "İnce ayar": "Fine tuning", "Doygunluk": "Saturation", "Canlı renkler": "Vivid colors", "Doğal renkler": "Natural colors", "Doygunluk renklerin solukluğunu azaltır; parlaklık ayrı ayarlanır. Beyaz alanlar beyaz kalır.": "Saturation strengthens muted colors; brightness is separate. Neutral whites stay white.", "Hız": "Speed", "Parlaklık": "Brightness", "Desen sıklığı": "Pattern density", "Ana renk": "Primary color", "İkinci renk": "Secondary color", "Güncelleme hızı": "Update rate", "8 kare/sn · düşük yük": "8 fps · low load", "12 kare/sn · düşük hız": "12 fps · slower", "20 kare/sn · dengeli": "20 fps · balanced", "Ters yön": "Reverse", "Tüm efektler uyumlu gönderim sınırında çalışır. İnce renk tonları gerektiğinde birleştirilir.": "All effects stay within the tested packet limit. Similar shades are merged when needed.", "Favorilerin": "Your favorites", "☆ Favoriye ekle": "☆ Add favorite", "★ Favoriden çıkar": "★ Remove favorite", "Profili kaydet": "Save preset", "Profiller ve favoriler bu tarayıcıda saklanır.": "Presets and favorites are stored in this browser.", "Yalnızca ışık kontrolü": "Lighting only", "Hz/polling rate, Rapid Trigger, tuş hassasiyeti, makrolar ve tuş atamaları değiştirilmez. Menüdeki kare/sn yalnızca RGB animasyon hızıdır.": "Polling rate, Rapid Trigger, actuation settings, macros and key bindings are not changed. FPS refers only to RGB animation updates.", "İlk kullanım": "Getting started", "Chrome veya Edge ile aç. AULA sürücüsü ve diğer RGB uygulamaları kapalı olsun. Bağlan, bir efekt seç ve başlat.": "Open in Chrome or Edge. Close the AULA driver and other RGB apps. Connect, choose an effect and start.", "Üst barın mevcut modunda renk/parlaklık kontrolü ayrı paneldedir; canlı efekt eşleme desteklenmez. Efektler sayfa açıkken çalışır. Sekmeyi kapatmadan önce “Durdur ve geri yükle” kullan.": "The bar panel controls built-in modes and experimental single-color sync, not per-LED streaming. Keep the page open. Use Stop and restore before closing.", "Yedekten geri yükle": "Recover from backup", "Beklenmedik kapanmadan sonra aynı tarayıcıda bağlanıp yedeği geri yükleyebilirsin.": "After an unexpected close, reconnect in the same browser and recover the backup.", "Bağlantı günlüğü": "Connection log", "Alta alarak çalıştır": "Run in a minimized window", "HERO84-Baslat.cmd ile ayrı uygulama penceresini açıp alta alabilirsin. Arka plan zamanlayıcı kısıtlamaları bu pencerede azaltılır. Bilgisayar uykudayken veya pencere kapalıyken çalışmaz. Eski pencerede önce Durdur ve geri yükle yap.": "Use HERO84-Baslat.cmd to open a separate app window you can minimize. Background timer restrictions are reduced there. It cannot run while the PC sleeps or the window is closed. Stop and restore in the old window first.", "HERO84 HE · USB 372E:103E · Yerel uygulama, sunucuya veri göndermez. Canlı RGB kullanıcı tarafından doğrulandı. Mario mini oyunu ilk sürüm.": "HERO84 HE · USB 372E:103E · Local app, no server uploads. Live key RGB has been user-tested. The mini game is experimental.", "Efekt ara…": "Search effects…", "Efekt ara": "Search effects", "Fırça rengi": "Brush color", "Tuş boyama alanı": "Key painting canvas", "Seçili efektin 84 tuş üzerindeki önizlemesi": "Selected effect preview on 84 keys", "Tümü": "All", "Favoriler": "Favorites", "Parçacık": "Particles", "Dalga": "Waves", "Geometri": "Geometry", "Atmosfer": "Atmosphere", "Karakter": "Characters", "Oyun": "Games", "Sakin": "Calm", "Tarama": "Scanners", "Meme Yazı": "Meme Text", "Uzay": "Space", "Doğa": "Nature", "Teknoloji": "Technology", "Klavyeyle bağlantı yok.": "Keyboard is not connected.", "USB yanıtı zaman aşımına uğradı. Diğer RGB uygulamalarını kapat.": "USB response timed out. Close other RGB applications.", "Tuş renkleri eksiksiz yedeklenemedi. Efekt başlatılmadı.": "Could not back up every key color. The effect was not started.", "RGB kare boyutu sınırı aşıldı.": "RGB frame size limit exceeded.", "Geçerli ışık yedeği bulunamadı.": "No valid lighting backup was found.", "Önceki ışık ayarları geri yüklendi.": "Previous lighting settings restored.", "Bu dosyayı güncel Chrome veya Edge ile aç.": "Open this file in a current Chrome or Edge browser.", "Cihaz seçilmedi.": "No device selected.", "RGB arayüzü bulunamadı.": "RGB interface not found.", "Bu uygulama yalnızca doğrulanmış HERO84 HE modeli için.": "This build supports only the verified HERO84 HE model.", "Canlı ışık desteği doğrulanamadı.": "Live lighting support could not be verified.", "Önceki oturum yarım kalmış. Önce “Yedekten geri yükle” kullan.": "An earlier session was interrupted. Use Recover from backup first.", "HERO84 bağlı. Bir efekt seçip başlatabilirsin.": "HERO84 connected. Choose an effect and start.", "Mevcut ışık ayarları yedekleniyor…": "Backing up current lighting settings…", "Efekt akışı başladı. Görsel sonucu klavyede kontrol et.": "Effect streaming started. Check the physical keyboard.", "Geri yükleme tamamlanamadı:": "Restore failed:", "Akış açık ·": "Streaming ·", "Efekt durdu:": "Effect stopped:", "Bağlanıp “Yedekten geri yükle” kullan.": "Reconnect and use Recover from backup.", "USB bağlantısı kesildi. Yeniden bağlanıp yedeği geri yükle.": "USB disconnected. Reconnect and recover the backup.", "Favoriler bu tarayıcıda kaydedilemedi.": "Could not save favorites in this browser.", "Profil adı": "Preset name", "Profil kaydedilemedi.": "Could not save the preset.", "Bölüm tamamlandı!": "Level complete!", "Oyun bitti": "Game over", "Duraklatıldı": "Paused", "Sen oynuyorsun": "You are playing", "Devam et": "Resume", "Üst bar ayarı doğrulanamadı; değişiklik yapılmadı.": "Bar settings could not be verified; no change made.", "Bar ayarı okundu. Efektini seçip Uygula düğmesine bas. Sabit ışık akışı durdurur.": "Bar settings read. Choose a mode and Apply. Static stops the chase.", "Önce bar ayarını oku.": "Read the bar settings first.", "Üst bar yedeği bu modele ait değil.": "The bar backup is for a different model.", "Geçersiz bar ayarı.": "Invalid bar settings.", "Bar ayarı geri okumayla doğrulanamadı. Eski bar ayarını geri yükleyebilirsin.": "Bar readback did not match. You can restore the old bar settings.", "Bar ayarı gönderildi ve geri okundu. Fiziksel ışığı kontrol et. Yedek saklanıyor.": "Bar settings sent and verified by readback. Check the lights. Backup retained.", "Geçerli üst bar yedeği yok.": "No valid bar backup.", "Bar geri yüklemesi doğrulanamadı. Yedek korundu.": "Bar restore could not be verified. Backup retained.", "Önceki üst bar ayarı geri yüklendi.": "Previous bar settings restored.", "Eşlenen bar geri yüklenemedi; yedek korunuyor.": "Synced bar could not be restored; backup retained.", "Eşleme öncesindeki bar ayarı geri yüklendi.": "Pre-sync bar settings restored.", "Geçersiz bar eşleme modu.": "Invalid bar sync mode.", "Deneysel eşleme açık · en fazla saniyede 1 renk güncellemesi. Kesinti olursa tiki kapat.": "Experimental sync on · at most one color update per second. Uncheck if lights stutter.", "Geçerli bir HERO84 efekt dosyası değil.": "Not a valid HERO84 effect file.", "Kare süresi 50–5000 ms olmalı.": "Frame duration must be 50–5000 ms.", "Tuş renkleri eksik veya geçersiz.": "Missing or invalid key colors.", "Bu tarayıcıya kaydedildi. Paylaşmak için Efekti indir kullan.": "Saved in this browser. Use Export effect to share it.", "Tarayıcıya kaydedilemedi. Efekti indir ile dosya olarak sakla.": "Could not save in this browser. Export the effect to keep a file copy.", "Eski stüdyo kaydı açılamadı; boş çalışma hazır.": "Could not open the saved studio project; starting with an empty project.", "En fazla 60 kare eklenebilir.": "A project can contain up to 60 frames.", "En az bir kare kalmalı.": "At least one frame must remain.", "Süre 50–5000 ms arasında olmalı.": "Duration must be between 50 and 5000 ms.", "Efekt seçildi. Klavyede oynatmak için üstte Efekti başlat kullan.": "Effect selected. Use Start effect above to play it on the keyboard.", "Önce kütüphaneden örnek almak istediğin başka bir efekt seç.": "First select another library effect to capture.", "Seçili efektin 3,6 saniyelik örneği 24 kareye alındı. Her kareyi boyayabilirsin.": "Captured 3.6 seconds of the selected effect in 24 editable frames.", "Efekt dosyası 1 MB sınırını aşıyor.": "The effect file exceeds the 1 MB limit.", "Benim efektim": "My effect", "Benim efektim · Stüdyo": "My effect · Studio", "Spider-Man · Göz Kırp & Swing": "Spider-Man · Blink & Swing", "Bunny Groove · GIF Dansı": "Bunny Groove · Dance", "Hatsune Miku · Sahne": "Hatsune Miku · Stage", "İpeksi Yağmur · Gece Serenadı": "Silky Rain · Night Serenade", "Gökkuşağı dalga": "Rainbow wave", "Dikey spektrum": "Vertical spectrum", "Çapraz akış": "Diagonal flow", "Renk halkaları": "Color rings", "Renk spirali": "Color spiral", "Kuzey ışıkları": "Aurora", "Okyanus": "Ocean", "Lav akışı": "Lava flow", "Kor ateşi": "Ember fire", "Buz kristalleri": "Ice crystals", "Matrix yağmuru": "Matrix rain", "Neon yağmur": "Neon rain", "Kar taneleri": "Snowflakes", "Yıldız tarlası": "Star field", "Kuyruklu yıldız": "Comet", "Meteor sürüsü": "Meteor shower", "Tarayıcı": "Scanner", "Çift tarayıcı": "Twin scanner", "Yılan izi": "Snake trail", "Kalp atışı": "Heartbeat", "Gün batımı": "Sunset", "Pamuk şeker": "Cotton candy", "İki renk akış": "Two-color flow", "Dama": "Checkerboard", "Elmas halkalar": "Diamond rings", "Plazma": "Plasma", "Girdap": "Vortex", "Su damlaları": "Water ripples", "Ritim çubukları": "Rhythm bars", "Konfeti": "Confetti", "Uçuşan korlar": "Floating embers", "Ateş böcekleri": "Fireflies", "Neon tünel": "Neon tunnel", "Işık perdesi": "Light curtain", "Renk gradyanı": "Color gradient", "Sabit renk": "Solid color", "Satır takibi": "Row chase", "Yörünge": "Orbit", "Dans Eden Muz": "Dancing Banana", "Hayalet Takibi": "Ghost Chase", "Yarasa Sinyali": "Bat Signal", "Sonic Koşusu": "Sonic Run", "Synthwave Ufku": "Synthwave Horizon", "Neon Otoyol": "Neon Highway", "Lazer Izgarası": "Laser Grid", "Kara Delik": "Black Hole", "Galaksi Kolları": "Galaxy Arms", "Süpernova": "Supernova", "Güneş Patlaması": "Solar Flare", "Bulutsu": "Nebula", "Warp Yolculuğu": "Warp Travel", "Şimşek Yolu": "Lightning Path", "Bulut Denizi": "Sea of Clouds", "Derin Orman": "Deep Forest", "Biyolüminesans": "Bioluminescence", "Mercan Resifi": "Coral Reef", "Tropik Sahil": "Tropical Beach", "Bal Peteği": "Honeycomb", "Dalga Girişimi": "Wave Interference", "Kaleydoskop": "Kaleidoscope", "Çift Sarmal": "Double Helix", "Devre Akışı": "Circuit Flow", "Dijital Kayma": "Digital Glitch", "İndirme Çubuğu": "Download Bar", "Yükleniyor…": "Loading…", "Pong Rallisi": "Pong Rally", "Düşen Bloklar": "Falling Blocks", "Renk Çiçekleri": "Color Blossoms", "Baloncuklar": "Bubbles", "Şelale": "Waterfall", "Saf RGB Testi": "Pure RGB Test", "Isı Dalgası": "Heatwave", "Yağmur Halkaları": "Rain Ripples"};
+
+const translationEntries=Object.entries(TRANSLATIONS).sort((a,b)=>b[0].length-a[0].length);
+let language='tr';try{language=localStorage.getItem('hero84-language')||((navigator.language||'').startsWith('tr')?'tr':'en');}catch{}
+function tr(text){if(language==='tr')return text;const stripped=text.trim();if(TRANSLATIONS[stripped])return text.replace(stripped,TRANSLATIONS[stripped]);let out=text;for(const [a,b] of translationEntries){if(a.length>12&&out.includes(a))out=out.split(a).join(b);}return out.replace(/(\d+) efekt/g,'$1 effects').replace(/(\d+) kategori/g,'$1 categories').replace(/(\d+) favori/g,'$1 favorites').replace(/(\d+) tuş/g,'$1 keys').replace(/kare\/sn/g,'fps').replace(/kare ·/g,'frames ·').replace(/saniye/g,'seconds').replace(/ · Can /g,' · Lives ').replace(/ · Altın /g,' · Coins ').replace(/ · Puan /g,' · Score ');}
+function initLanguage(){
+ if(!document.createTreeWalker)return;
+ const originals=new WeakMap(),attributes=new WeakMap();
+ function translateNode(node){
+  if(node.nodeType===3){if(node.parentElement?.closest('script,style,#profiles,#language'))return;let item=originals.get(node);if(!item||node.nodeValue!==item.last)item={source:node.nodeValue};const next=tr(item.source);item.last=next;originals.set(node,item);if(node.nodeValue!==next)node.nodeValue=next;return;}
+  if(node.nodeType!==1)return;
+  for(const key of ['placeholder','aria-label'])if(node.hasAttribute(key)){let map=attributes.get(node)||{};let item=map[key];const current=node.getAttribute(key);if(!item||current!==item.last)item={source:current};const next=tr(item.source);item.last=next;map[key]=item;attributes.set(node,map);if(current!==next)node.setAttribute(key,next);}
+  for(const child of node.childNodes)translateNode(child);
+ }
+ const select=document.getElementById('language');select.value=language;
+ function apply(){document.documentElement.lang=language;translateNode(document.body);}
+ select.addEventListener('change',()=>{language=select.value;try{localStorage.setItem('hero84-language',language);}catch{}apply();});
+ apply();new MutationObserver(records=>{for(const r of records){if(r.type==='characterData')translateNode(r.target);else for(const node of r.addedNodes)translateNode(node);}}).observe(document.body,{subtree:true,childList:true,characterData:true});
+}
+
+</script><script>
+const KEYS=[{"id":1,"label":"Esc","x":21,"y":37,"w":34,"h":33},{"id":2,"label":"F1","x":61.4,"y":37,"w":34,"h":33},{"id":3,"label":"F2","x":101.80000000000001,"y":37,"w":34,"h":33},{"id":4,"label":"F3","x":142.20000000000002,"y":37,"w":34,"h":33},{"id":5,"label":"F4","x":182.60000000000002,"y":37,"w":34,"h":33},{"id":6,"label":"F5","x":223.00000000000003,"y":37,"w":34,"h":33},{"id":7,"label":"F6","x":263.4,"y":37,"w":34,"h":33},{"id":8,"label":"F7","x":303.79999999999995,"y":37,"w":34,"h":33},{"id":9,"label":"F8","x":344.19999999999993,"y":37,"w":34,"h":33},{"id":10,"label":"F9","x":384.5999999999999,"y":37,"w":34,"h":33},{"id":11,"label":"F10","x":424.9999999999999,"y":37,"w":34,"h":33},{"id":12,"label":"F11","x":465.39999999999986,"y":37,"w":34,"h":33},{"id":13,"label":"F12","x":505.79999999999984,"y":37,"w":34,"h":33},{"id":95,"label":"PrtSc","x":546.1999999999998,"y":37,"w":34,"h":33},{"id":98,"label":"Insert","x":586.5999999999998,"y":37,"w":34,"h":33},{"id":99,"label":"Delete","x":628,"y":37,"w":34,"h":33},{"id":14,"label":"`~","x":22,"y":75,"w":34,"h":33},{"id":15,"label":"1","x":62.4,"y":75,"w":34,"h":33},{"id":16,"label":"2","x":102.80000000000001,"y":75,"w":34,"h":33},{"id":17,"label":"3","x":143.20000000000002,"y":75,"w":34,"h":33},{"id":18,"label":"4","x":183.60000000000002,"y":75,"w":34,"h":33},{"id":19,"label":"5","x":224.00000000000003,"y":75,"w":34,"h":33},{"id":20,"label":"6","x":264.4,"y":75,"w":34,"h":33},{"id":21,"label":"7","x":304.79999999999995,"y":75,"w":34,"h":33},{"id":22,"label":"8","x":345.19999999999993,"y":75,"w":34,"h":33},{"id":23,"label":"9","x":385.5999999999999,"y":75,"w":34,"h":33},{"id":24,"label":"0","x":425.9999999999999,"y":75,"w":34,"h":33},{"id":25,"label":"-_","x":466.39999999999986,"y":75,"w":34,"h":33},{"id":26,"label":"=+","x":506.79999999999984,"y":75,"w":34,"h":33},{"id":27,"label":"Backspace","x":547.1999999999998,"y":75,"w":77,"h":33},{"id":100,"label":"Home","x":628,"y":75,"w":33,"h":33},{"id":28,"label":"Tab","x":22,"y":113,"w":56,"h":33},{"id":29,"label":"Q","x":84.3,"y":113,"w":34,"h":33},{"id":30,"label":"W","x":124.6,"y":113,"w":34,"h":33},{"id":31,"label":"E","x":164.9,"y":113,"w":34,"h":33},{"id":32,"label":"R","x":205.20000000000002,"y":113,"w":34,"h":33},{"id":33,"label":"T","x":245.50000000000003,"y":113,"w":34,"h":33},{"id":34,"label":"Y","x":285.8,"y":113,"w":34,"h":33},{"id":35,"label":"U","x":326.1,"y":113,"w":34,"h":33},{"id":36,"label":"I","x":366.40000000000003,"y":113,"w":34,"h":33},{"id":37,"label":"O","x":406.70000000000005,"y":113,"w":34,"h":33},{"id":38,"label":"P","x":447.00000000000006,"y":113,"w":34,"h":33},{"id":39,"label":"[{","x":487.30000000000007,"y":113,"w":34,"h":33},{"id":40,"label":"]}","x":527.6,"y":113,"w":34,"h":33},{"id":41,"label":"\\ |","x":568,"y":112,"w":56,"h":34},{"id":101,"label":"End","x":628,"y":112,"w":34,"h":33},{"id":42,"label":"Caps","x":21,"y":151,"w":68,"h":33},{"id":43,"label":"A","x":95.2,"y":151,"w":34,"h":33},{"id":44,"label":"S","x":135.39999999999998,"y":151,"w":34,"h":33},{"id":45,"label":"D","x":175.59999999999997,"y":151,"w":34,"h":33},{"id":46,"label":"F","x":215.79999999999995,"y":151,"w":34,"h":33},{"id":47,"label":"G","x":255.99999999999994,"y":151,"w":34,"h":33},{"id":48,"label":"H","x":296.19999999999993,"y":151,"w":34,"h":33},{"id":49,"label":"J","x":336.3999999999999,"y":151,"w":34,"h":33},{"id":50,"label":"K","x":376.5999999999999,"y":151,"w":34,"h":33},{"id":51,"label":"L","x":416.7999999999999,"y":151,"w":34,"h":33},{"id":52,"label":";:","x":456.9999999999999,"y":151,"w":34,"h":33},{"id":53,"label":"' \"","x":497.1999999999999,"y":151,"w":34,"h":33},{"id":54,"label":"Enter","x":537.3999999999999,"y":151,"w":87,"h":33},{"id":102,"label":"PgUp","x":628,"y":150,"w":34,"h":33},{"id":55,"label":"L_Shift","x":20,"y":188,"w":88,"h":33},{"id":56,"label":"Z","x":114.1,"y":188,"w":34,"h":33},{"id":57,"label":"X","x":154.2,"y":188,"w":34,"h":33},{"id":58,"label":"C","x":194.29999999999998,"y":188,"w":34,"h":33},{"id":59,"label":"V","x":234.39999999999998,"y":188,"w":34,"h":33},{"id":60,"label":"B","x":274.5,"y":188,"w":34,"h":33},{"id":61,"label":"N","x":314.6,"y":188,"w":34,"h":33},{"id":62,"label":"M","x":354.70000000000005,"y":188,"w":34,"h":33},{"id":63,"label":",<","x":394.80000000000007,"y":188,"w":34,"h":33},{"id":64,"label":".>","x":434.9000000000001,"y":188,"w":34,"h":33},{"id":65,"label":"/?","x":475.0000000000001,"y":188,"w":34,"h":33},{"id":66,"label":"R_Shift","x":515.1000000000001,"y":188,"w":69,"h":32},{"id":74,"label":"Up","x":589,"y":189,"w":34,"h":33},{"id":103,"label":"PgDn","x":628,"y":189,"w":34,"h":33},{"id":67,"label":"L_Ctrl","x":22,"y":226,"w":45,"h":33},{"id":68,"label":"L_WIN","x":73,"y":226,"w":44,"h":33},{"id":69,"label":"L_Alt","x":123,"y":226,"w":42,"h":33},{"id":70,"label":"Space","x":173,"y":226,"w":250,"h":33},{"id":71,"label":"R_Alt","x":427,"y":227,"w":34,"h":33},{"id":72,"label":"Fn1","x":469,"y":227,"w":34,"h":33},{"id":76,"label":"Left","x":548,"y":227,"w":34,"h":33},{"id":75,"label":"Down","x":588,"y":228,"w":34,"h":33},{"id":77,"label":"Right","x":628,"y":227,"w":34,"h":33},{"id":73,"label":"R_Ctrl","x":508,"y":228,"w":34,"h":33}];
+
+</script><script>
+'use strict';
+// A small original platform level, rendered on the keyboard's six physical rows.
+const MARIO_LEVEL={length:78,gaps:[[17,19],[34,36],[58,60]],platforms:[{x:9,y:3,w:3},{x:26,y:3,w:3},{x:46,y:3,w:4},{x:65,y:3,w:3}],pipes:[{x:22,y:4,w:2},{x:41,y:4,w:2},{x:54,y:4,w:2}],coins:[{x:10,y:2},{x:11,y:2},{x:12,y:2},{x:18,y:3},{x:27,y:2},{x:28,y:2},{x:35,y:3},{x:47,y:2},{x:49,y:2},{x:59,y:3},{x:66,y:2},{x:67,y:2}]};
+function newMario(){return{x:2,feet:5,vy:0,ground:true,camera:0,coins:new Set(),lives:3,score:0,state:'play',auto:true,paused:false,t:0,respawn:0,invincible:0,jump:false,input:{left:false,right:false},enemies:[{x:14,base:14,alive:true},{x:31,base:31,alive:true},{x:51,base:51,alive:true},{x:70,base:70,alive:true}]};}
+let mario=newMario(),marioLast=performance.now();
+function marioReset(auto=mario.auto){mario=newMario();mario.auto=auto;marioLast=performance.now();}
+function marioGap(x){return MARIO_LEVEL.gaps.some(([a,b])=>x>=a&&x<b);}
+function marioSolid(x,y){if(y>=5&&y<6&&!marioGap(x))return true;return [...MARIO_LEVEL.platforms,...MARIO_LEVEL.pipes].some(p=>x>=p.x&&x<p.x+p.w&&y>=p.y&&y<p.y+(MARIO_LEVEL.pipes.includes(p)?5-p.y:1));}
+function marioDie(){mario.lives--;if(mario.lives<=0){mario.state='over';mario.respawn=0;return;}mario.x=2;mario.feet=5;mario.vy=0;mario.ground=true;mario.invincible=1.5;mario.input.left=false;mario.input.right=false;}
+function marioStep(dt){
+ if(mario.paused)return;
+ mario.t+=dt;mario.invincible=Math.max(0,mario.invincible-dt);
+ if(mario.state!=='play'){mario.respawn+=dt;if(mario.auto&&mario.respawn>3)marioReset(true);return;}
+ for(const e of mario.enemies)if(e.alive)e.x=e.base+Math.sin(mario.t*1.1+e.base)*.6;
+ let direction=mario.auto?1:(+mario.input.right-+mario.input.left);
+ if(mario.auto&&mario.ground){const ahead=mario.x+1.6;const obstacle=marioSolid(ahead,mario.feet-.6)||marioSolid(ahead,mario.feet-1.3);const gap=marioGap(ahead)&&mario.feet>4.9;const enemy=mario.enemies.some(e=>e.alive&&e.x>mario.x&&e.x-mario.x<1.8);if(obstacle||gap||enemy)mario.jump=true;}
+ if(mario.jump&&mario.ground){mario.vy=-8.7;mario.ground=false;}mario.jump=false;
+ const oldFeet=mario.feet,nextX=Math.max(.5,Math.min(MARIO_LEVEL.length-1,mario.x+direction*4*dt));
+ const edge=nextX+direction*.35;
+ if(direction===0||(!marioSolid(edge,mario.feet-.12)&&!marioSolid(edge,mario.feet-1.3)))mario.x=nextX;
+ mario.vy+=18*dt;mario.feet+=mario.vy*dt;mario.ground=false;
+ if(mario.vy>=0){
+  const surfaces=[5,...MARIO_LEVEL.platforms.map(p=>p.y),...MARIO_LEVEL.pipes.map(p=>p.y)].sort((a,b)=>a-b);
+  for(const y of surfaces)if(oldFeet<=y+.02&&mario.feet>=y&&(marioSolid(mario.x-.25,y+.01)||marioSolid(mario.x+.25,y+.01))){mario.feet=y;mario.vy=0;mario.ground=true;break;}
+ }else if(marioSolid(mario.x,mario.feet-1.5)){mario.feet=Math.floor(mario.feet-1.5)+1+1.5;mario.vy=0;}
+ for(let i=0;i<MARIO_LEVEL.coins.length;i++){const coin=MARIO_LEVEL.coins[i];if(!mario.coins.has(i)&&Math.abs(coin.x+.5-mario.x)<.85&&coin.y+.5>mario.feet-1.8&&coin.y+.5<mario.feet+.25){mario.coins.add(i);mario.score+=100;}}
+ for(const e of mario.enemies)if(e.alive&&Math.abs(e.x-mario.x)<.65&&mario.feet>4.05&&mario.feet-1.5<5){if(mario.vy>0&&oldFeet<=4.35){e.alive=false;mario.vy=-6.2;mario.score+=200;}else if(mario.invincible<=0){marioDie();break;}}
+ if(mario.feet>8)marioDie();
+ if(mario.x>=MARIO_LEVEL.length-3){mario.state='win';mario.score+=500;}
+ mario.camera=Math.max(0,Math.min(MARIO_LEVEL.length-16,mario.x-4.5));
+}
+function marioTick(now){const elapsed=Math.min(.1,Math.max(0,(now-marioLast)/1000));marioLast=now;let remaining=elapsed;while(remaining>0){const step=Math.min(1/120,remaining);marioStep(step);remaining-=step;}}
+function marioColor(key,opt){
+ const local=(key.x+key.w/2-20)/40,x=mario.camera+local,row=Math.max(0,Math.min(5,Math.round((key.y-37)/38))),tile=Math.floor(x);
+ let c=[2,8,22];
+ if(row===0&&Math.sin(tile*.8)>.7)c=[14,28,40];
+ if(row===5&&!marioGap(x))c=[70,30,5];
+ if(row===4&&!marioGap(x))c=[4,17,5];
+ if(MARIO_LEVEL.platforms.some(p=>x>=p.x&&x<p.x+p.w&&row===p.y))c=[185,66,8];
+ if(MARIO_LEVEL.pipes.some(p=>x>=p.x&&x<p.x+p.w&&row>=p.y&&row<5))c=[10,170,30];
+ for(let i=0;i<MARIO_LEVEL.coins.length;i++){const coin=MARIO_LEVEL.coins[i];if(!mario.coins.has(i)&&tile===coin.x&&row===coin.y)c=[255,170+Math.round(40*Math.sin(mario.t*4)),6];}
+ for(const e of mario.enemies)if(e.alive&&Math.abs(x-e.x)<.65&&row===4)c=[160,45,10];
+ if(Math.abs(x-(MARIO_LEVEL.length-3))<.55&&row>=1&&row<=4)c=[130,150,165];
+ if(x>=MARIO_LEVEL.length-3&&x<MARIO_LEVEL.length-1&&row===1)c=[25,255,75];
+ // Use each key's physical span so the character remains visible on wide keys.
+ const left=mario.camera+(key.x-20)/40,right=left+key.w/40;
+ if(mario.x+.25>=left&&mario.x-.25<=right){
+  if(row===Math.floor(mario.feet-1.35))c=[255,20,12];
+  if(row===Math.floor(mario.feet-.35))c=[15,65,255];
+ }
+ if(mario.state==='win'&&row===0)c=[15,200,65];
+ if(mario.state==='over'&&row===0)c=[160,12,20];
+ return c.map(v=>Math.round(v*opt.brightness));
+}
+
+</script><script>
+'use strict';
+const EXTRA_EFFECTS=[
+ ['nyan','Nyan Cat','Meme'],['amongus','Among Us · Sus','Meme'],['pepe','Pepe','Meme'],['doge','Doge · Much RGB','Meme'],['banana','Dans Eden Muz','Meme'],['invader','Space Invader','Retro'],['pacman','Pac-Man','Retro'],['ghost','Hayalet Takibi','Retro'],['kirby','Kirby','Karakter'],['pokeball','Poké Ball','Karakter'],['batman','Yarasa Sinyali','Karakter'],['sonic','Sonic Koşusu','Karakter'],
+ ['gg','GG WP','Meme Yazı'],['ez','EZ','Meme Yazı'],['bruh','BRUH','Meme Yazı'],['lol','LOL','Meme Yazı'],['afk','AFK','Meme Yazı'],['pressf','PRESS F','Meme Yazı'],['error404','404 NOT FOUND','Meme Yazı'],['rickroll','Never Gonna Give You Up','Meme Yazı'],['stonks','STONKS','Meme Yazı'],['catjam','CAT JAM','Meme Yazı'],['bonk','BONK','Meme Yazı'],['sus','SUS','Meme Yazı'],
+ ['synthwave','Synthwave Ufku','Atmosfer'],['neonroad','Neon Otoyol','Atmosfer'],['wiregrid','Lazer Izgarası','Geometri'],['blackhole','Kara Delik','Uzay'],['galaxy','Galaksi Kolları','Uzay'],['supernova','Süpernova','Uzay'],['solarflare','Güneş Patlaması','Uzay'],['nebula','Bulutsu','Uzay'],['warp','Warp Yolculuğu','Uzay'],['thunder','Şimşek Yolu','Atmosfer'],['clouds','Bulut Denizi','Atmosfer'],['forest','Derin Orman','Doğa'],['biolume','Biyolüminesans','Doğa'],['coral','Mercan Resifi','Doğa'],['tropical','Tropik Sahil','Doğa'],['honeycomb','Bal Peteği','Geometri'],['mandala','Mandala','Geometri'],['moire','Dalga Girişimi','Geometri'],['kaleido','Kaleydoskop','Geometri'],['yinyang','Yin Yang','Geometri'],['helix','Çift Sarmal','Geometri'],['circuit','Devre Akışı','Teknoloji'],['glitch','Dijital Kayma','Teknoloji'],['progress','İndirme Çubuğu','Teknoloji'],['loading','Yükleniyor…','Teknoloji'],['pong','Pong Rallisi','Retro'],['tetris','Düşen Bloklar','Retro'],['fireworks','Renk Çiçekleri','Parçacık'],['bubbles','Baloncuklar','Parçacık'],['waterfall','Şelale','Doğa'],['spectrumtest','Saf RGB Testi','Teknoloji'],['heatmap','Isı Dalgası','Atmosfer'],['raindrops','Yağmur Halkaları','Doğa']
+].map(([id,name,category])=>({id,name,category}));
+const PIXEL_ART={
+ nyan:['..PPPPP.C.C.','RRPPPPPGGGG.','OOPPPPPGKGK.','YYPPPPPGGGG.','GG..P.P..G.G'],
+ amongus:['..RRR..','RRWWCR.','RRWWCR.','RRRRRR.','..R.R..'],
+ pepe:['.GG.GG.','GWWGWWG','GKG.GKG','GGGGGGG','.RRRRR.'],
+ doge:['Y.....Y','YYYYYYY','YKY.YKY','YYYKYYY','.YRRRY.'],
+ banana:['....YY.','...YYY.','..YYYY.','.YYYY..','YY..Y..'],
+ invader:['.G...G.','..GGG..','.GKGKG.','GGGGGGG','G.G.G.G'],
+ pacman:['..YYYY.','.YYYY..','YYYY...','.YYYY..','..YYYY.'],
+ ghost:['..PPP..','.PPPPP.','PPWPWPP','PPKPKPP','P.P.P.P'],
+ kirby:['..PPP..','.PPPPP.','PPKPKPP','.PRRRP.','RR...RR'],
+ pokeball:['..RRR..','.RRRRR.','KKKWKKK','.WWWWW.','..WWW..'],
+ batman:['K.....K','KK.K.KK','KKKKKKK','.KKKKK.','...K...'],
+ sonic:['..BBBB.','.BBK...','BBBCBB.','..BBB..','.RR.RR.']
+};
+const PIXEL_COLORS={R:[255,8,15],G:[10,240,45],B:[10,65,255],Y:[255,190,0],P:[255,12,135],C:[0,220,255],O:[255,65,0],W:[215,235,255],K:[1,1,3]};
+const MEME_TEXT={gg:'GG WP',ez:'EZ',bruh:'BRUH',lol:'LOL',afk:'AFK',pressf:'PRESS F',error404:'404 NOT FOUND',rickroll:'NEVER GONNA GIVE YOU UP',stonks:'STONKS',catjam:'CAT JAM',bonk:'BONK',sus:'SUS'};
+const FONT3={A:['010','101','111','101','101'],B:['110','101','110','101','110'],C:['011','100','100','100','011'],D:['110','101','101','101','110'],E:['111','100','110','100','111'],F:['111','100','110','100','100'],G:['011','100','101','101','011'],H:['101','101','111','101','101'],I:['111','010','010','010','111'],J:['001','001','001','101','010'],K:['101','101','110','101','101'],L:['100','100','100','100','111'],M:['101','111','111','101','101'],N:['101','111','111','111','101'],O:['010','101','101','101','010'],P:['110','101','110','100','100'],Q:['010','101','101','111','011'],R:['110','101','110','101','101'],S:['011','100','010','001','110'],T:['111','010','010','010','010'],U:['101','101','101','101','111'],V:['101','101','101','101','010'],W:['101','101','111','111','101'],X:['101','101','010','101','101'],Y:['101','101','010','010','010'],Z:['111','001','010','100','111'],'0':['111','101','101','101','111'],'4':['101','101','111','001','001'],' ':['000','000','000','000','000']};
+function pixelSample(rows,x,y,palette){const col=Math.floor(x),row=Math.round(y),f=x-col;const sample=c=>palette[rows[row]?.[c]]||[0,0,0];return mix(sample(col),sample(col+1),f);}
+function extraColor(id,key,index,t,opt){
+ const x=(key.x+key.w/2-20)/650,y=(key.y-37)/195,xx=x*opt.scale,yy=y*opt.scale,a=hex(opt.color),b=hex(opt.color2),dx=x-.5,dy=(y-.5)*.65,r=Math.hypot(dx,dy),angle=Math.atan2(dy,dx);let c=null,v=1;
+ if(PIXEL_ART[id]){const rows=PIXEL_ART[id],width=rows[0].length,offset=(16-width)/2+Math.sin(t*.85)*Math.min(3,(16-width)/2);const px=x*16-offset,py=y*5;
+  c=pixelSample(rows,px,py,PIXEL_COLORS);
+  if(id==='nyan'&&px<2&&py>0&&py<4)c=mix(hsv(py*.2-t*.12),c,.45);
+  if(id==='batman')c=mix([240,170,0],c,rows[Math.round(py)]?.[Math.floor(px)]==='K'?1:.1);
+  if(id==='banana')c=pixelSample(rows,px+Math.sin(py*.8+t*3)*.6,py,PIXEL_COLORS);
+  return c;
+ }
+ if(MEME_TEXT[id]){const text=MEME_TEXT[id],width=text.length*4,at=x*16+fract(t*2.8/(width+16))*(width+16)-16,col=Math.floor(at),row=Math.round(y*5);const bit=n=>{const char=text[Math.floor(n/4)];return FONT3[char]?.[row]?.[((n%4)+4)%4]==='1'?1:0;};const ink=bit(col)*(1-fract(at))+bit(col+1)*fract(at);return hsv(t*.05+x*.5,1,ink);}
+ switch(id){
+ case 'synthwave':c=y<.5?mix([120,0,160],[255,30,5],wave(r*8-t*.2)):hsv(.82,.95,.1+.9*Math.pow(wave(yy*23-t*2),10));break;
+ case 'neonroad':{const edge=Math.abs(dx)-(.03+y*.48);v=Math.exp(-(((edge/.03)**2)))+.35*Math.pow(wave(yy*18-t*3),12);c=mix([240,0,145],[0,130,255],x);break;}
+ case 'wiregrid':v=Math.max(Math.pow(wave(xx*30+t),14),Math.pow(wave(yy*22-t),14));c=mix(a,b,y);break;
+ case 'blackhole':v=clamp((r-.12)*5)*(.15+.85*Math.pow(wave(r*35+angle*3-t*2),5));c=hsv(.08+r*.8-t*.03);break;
+ case 'galaxy':c=hsv(.65+r*.6+Math.sin(angle*2+r*13-t)*.1);v=.08+.92*Math.pow(wave(angle*3+r*20-t),6);break;
+ case 'supernova':v=Math.exp(-(((r-(.15+.45*wave(t*.6)))/.075)**2));c=mix([255,30,0],[190,70,255],r*2);break;
+ case 'solarflare':c=hsv(.025+.09*wave(angle*4+r*15-t*2));v=.25+.75*wave(angle*7+r*25-t);break;
+ case 'nebula':c=hsv(.7+.15*Math.sin(xx*6+t*.3)+.1*Math.cos(yy*8-t*.2));v=.2+.8*wave(xx*9+yy*5+Math.sin(t*.4));break;
+ case 'warp':v=Math.pow(wave(angle*16),8)*Math.pow(wave(r*25-t*5),4);c=mix([20,20,255],[100,235,255],r);break;
+ case 'thunder':v=Math.exp(-(((x-(.5+.15*Math.sin(y*18+t*2)))/.045)**2));c=[115,80,255];break;
+ case 'clouds':v=.25+.75*wave(xx*6+Math.sin(yy*4+t*.3)+t*.3);c=mix([10,40,135],[80,185,255],v);break;
+ case 'forest':c=hsv(.27+.09*wave(xx*4+yy*8+t*.3),1,.12+.88*wave(xx*9-yy*2+t*.5));break;
+ case 'biolume':v=Math.pow(wave(xx*14+yy*6+Math.sin(t*.5)),5);c=mix([0,255,120],[0,95,255],wave(t*.3+xx));break;
+ case 'coral':c=mix([255,20,55],[255,90,0],wave(xx*9+yy*4-t*.5));v=.3+.7*wave(yy*9+Math.sin(xx*6+t));break;
+ case 'tropical':c=y<.5?mix([255,120,0],[230,0,150],x):mix([0,255,150],[0,90,255],wave(xx*8-t));break;
+ case 'honeycomb':v=Math.pow(wave(xx*27+Math.sin(yy*20))+wave(yy*20),3)/8;c=[255,135,0];break;
+ case 'mandala':c=hsv(r*4+angle*.4+t*.08);v=.2+.8*Math.pow(wave(angle*8+Math.sin(r*20-t)),4);break;
+ case 'moire':v=wave(xx*25+yy*10+t)*wave(xx*23-yy*11-t*.7);c=mix(a,b,wave(xx*4+t));break;
+ case 'kaleido':c=hsv(Math.abs(Math.sin(angle*3))*1.2+r*3-t*.1);break;
+ case 'yinyang':c=mix(a,b,.5+.5*Math.tanh(Math.sin(angle-t)*8+Math.sin(r*14)));break;
+ case 'helix':{const d=Math.min(Math.abs(y-wave(xx*9-t*2)),Math.abs(y-(1-wave(xx*9-t*2))));v=Math.exp(-(((d/.095)**2)));c=y<.5?a:b;break;}
+ case 'circuit':v=Math.pow(wave(Math.floor(y*5)*1.7+xx*12-t*2),8);c=[0,255,145];break;
+ case 'glitch':c=hsv(xx*.7+Math.sin(Math.floor(y*5)*3+t*1.4)*.22);v=.35+.65*wave(t+yy*4);break;
+ case 'progress':v=1/(1+Math.exp(clamp((x-wave(t*.7))*60,-60,60)));c=hsv(.32-y*.06);break;
+ case 'loading':v=Math.pow(wave(angle-t*2),8);c=mix(a,b,r*2);break;
+ case 'pong':{const bx=wave(t*1.3),by=wave(t*1.9);v=Math.exp(-((((x-bx)/.045)**2+((y-by)/.1)**2)));if(x<.06&&Math.abs(y-wave(t*1.9+.2))<.22||x>.94&&Math.abs(y-wave(t*1.9-.2))<.22)v=1;c=[10,255,70];break;}
+ case 'tetris':{const phase=fract(t*.25),col=Math.floor(t*.25);v=Math.abs(x-(.15+noise(col)*.7))<.1&&Math.abs(y-phase)<.18?1:.025;c=hsv(noise(col+6));break;}
+ case 'fireworks':{const ph=fract(t*.3),cx=.2+noise(Math.floor(t*.3))*.6,rr=Math.hypot(x-cx,(y-.4)*.6);v=Math.exp(-(((rr-ph*.7)/.05)**2))*Math.sin(ph*Math.PI);c=hsv(angle/(2*Math.PI)+t*.05);break;}
+ case 'bubbles':c=[0,0,0];for(let n=0;n<4;n++){const bx=.15+n*.24,by=fract(t*.13+noise(n)),rr=Math.hypot((x-bx)*.8,(y-by)*.5);c=c.map((v,j)=>v+hsv(n*.22+t*.03)[j]*Math.exp(-(((rr-.1)/.02)**2)));}break;
+ case 'waterfall':v=.1+.9*Math.pow(wave(yy*13-t*3+noise(Math.round(x*15))*6),6);c=mix([0,85,255],[0,255,210],x);break;
+ case 'spectrumtest':c=x<1/3?[255,0,0]:x<2/3?[0,255,0]:[0,0,255];break;
+ case 'heatmap':c=hsv(.65*wave(xx*5+yy*3+Math.sin(t*.6)));break;
+ case 'raindrops':{c=[0,0,0];for(let n=0;n<3;n++){const rr=Math.hypot(x-noise(n+4),(y-noise(n+10))*.6),ph=fract(t*.3+n/3);const power=Math.exp(-(((rr-ph*.8)/.035)**2))*Math.sin(ph*Math.PI);c=c.map((v,j)=>v+[0,115,255][j]*power);}break;}
+ }
+ return c?.map(n=>clamp(n*v,0,255))??null;
+}
+
+</script><script>
+'use strict';
+const EFFECTS=[
+ ['userstudio','Benim efektim · Stüdyo','Custom Scenes'],
+ ['mario','Mario · Klavye Macerası','Oyun'],
+ ['spidermask','Spider-Man · Göz Kırp & Swing','Custom Scenes'],
+ ['mikustage','Hatsune Miku · Sahne','Custom Scenes'],
+ ['bunnygroove','Bunny Groove · GIF Dansı','Custom Scenes'],
+ ['spiderswing','Spider-Man Swing','Custom Scenes'],
+ ['rainsoft','İpeksi Yağmur · Gece Serenadı','Parçacık'],
+ ['rainbow','Gökkuşağı dalga','Dalga'],['vertical','Dikey spektrum','Dalga'],['diagonal','Çapraz akış','Dalga'],['radial','Renk halkaları','Geometri'],['spiral','Renk spirali','Geometri'],['aurora','Kuzey ışıkları','Atmosfer'],['ocean','Okyanus','Atmosfer'],['lava','Lav akışı','Atmosfer'],['fire','Kor ateşi','Atmosfer'],['ice','Buz kristalleri','Atmosfer'],
+ ['matrix','Matrix yağmuru','Parçacık'],['rain','Neon yağmur','Parçacık'],['snow','Kar taneleri','Parçacık'],['stars','Yıldız tarlası','Parçacık'],['comet','Kuyruklu yıldız','Parçacık'],['meteor','Meteor sürüsü','Parçacık'],['scanner','Tarayıcı','Tarama'],['radar','Radar','Tarama'],['double','Çift tarayıcı','Tarama'],['snake','Yılan izi','Tarama'],
+ ['breath','Nefes','Sakin'],['heartbeat','Kalp atışı','Sakin'],['sunset','Gün batımı','Sakin'],['candy','Pamuk şeker','Sakin'],['duotone','İki renk akış','Dalga'],['checker','Dama','Geometri'],['diamonds','Elmas halkalar','Geometri'],['plasma','Plazma','Geometri'],['vortex','Girdap','Geometri'],['ripple','Su damlaları','Dalga'],
+ ['equalizer','Ritim çubukları','Geometri'],['confetti','Konfeti','Parçacık'],['embers','Uçuşan korlar','Parçacık'],['fireflies','Ateş böcekleri','Parçacık'],['tunnel','Neon tünel','Geometri'],['curtain','Işık perdesi','Dalga'],['gradient','Renk gradyanı','Sakin'],['solid','Sabit renk','Sakin'],['rowchase','Satır takibi','Tarama'],['orbit','Yörünge','Geometri']
+].map(([id,name,category])=>({id,name,category}));
+EFFECTS.push(...EXTRA_EFFECTS);
+const clamp=(n,a=0,b=1)=>Math.min(b,Math.max(a,n)),fract=n=>n-Math.floor(n),wave=n=>(Math.sin(n)+1)/2;
+function hsv(h,s=1,v=1){h=fract(h)*6;const c=v*s,x=c*(1-Math.abs(h%2-1)),m=v-c;const a=[[c,x,0],[x,c,0],[0,c,x],[0,x,c],[x,0,c],[c,0,x]][Math.floor(h)];return a.map(n=>255*(n+m));}
+const mix=(a,b,f)=>a.map((v,i)=>v*(1-clamp(f))+b[i]*clamp(f));
+const hex=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16));
+const noise=n=>fract(Math.sin(n*127.1+311.7)*43758.5453);
+function segmentDistance(x,y,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,q=clamp(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy||1));return Math.hypot(x-ax-q*dx,y-ay-q*dy);}
+function swingPose(t){const theta=Math.sin(t*1.15)*1.02;return{x:.5+Math.sin(theta)*.48,y:-.13+Math.cos(theta)*.63,lean:Math.cos(t*1.15)*.045};}
+// Two continuous depth layers. Periodic copies keep wrap points off the board;
+// Gaussian trails and impact envelopes never abruptly clear a key.
+const SILK_DROPS=Array.from({length:28},(_,i)=>{
+ const near=i<16,n=near?16:12,k=near?i:i-16;
+ return {x:(k+.35+.3*noise(i+710))/n,phase:noise(i+820),
+  velocity:(near?.32:.20)+noise(i+930)*(near?.18:.11),
+  width:near?.032:.043,tail:.22+noise(i+1040)*.16,
+  gain:(near?.83:.29)*(.7+.3*noise(i+1150)),tint:noise(i+1260),near};
+});
+function silkyRain(key,t,scale){
+ const x=(key.x+key.w/2-20)/650,y=(key.y-37)/195;
+ const density=Math.sqrt(scale),period=3.6;
+ // Saturated midnight blue stays very dim, without a breathing/full-board pulse.
+ let blue=0,teal=0,headLight=0,reflection=0;
+ for(const drop of SILK_DROPS){
+  const head=(fract(t*drop.velocity*density/period+drop.phase))*period-.8;
+  // A slight, continuous lean evokes wind without shaking entire columns.
+  const lane=drop.x+.013*Math.sin(t*.19+drop.phase*6.283)+.012*(y-.5);
+  const side=Math.exp(-(((x-lane)/drop.width)**2));
+  for(let copy=-1;copy<=1;copy++){
+   const pos=head+copy*period,d=pos-y;
+   const pearl=Math.exp(-((d/.115)**2));
+   const trail=Math.exp(-(((d-.18)/drop.tail)**2));
+   const glow=side*drop.gain*(.52*pearl+.54*trail);
+   blue+=glow*(1-drop.tint*.48);teal+=glow*drop.tint*.48;
+   headLight+=side*drop.gain*pearl*.11;
+   if(drop.near){
+    // Impact centred just after the last row; spreading rings fade on both
+    // sides of the event, including when time or direction is reversed.
+    const age=(pos-1.025)/drop.velocity;
+    const envelope=Math.exp(-(((age-.26)/.28)**2));
+    const radius=.018+.075*(age+.35);
+    const ring=Math.exp(-(((Math.abs(x-lane)-radius)/.034)**2));
+    reflection+=ring*envelope*Math.exp(-(((y-.98)/.105)**2))*.12;
+   }
+  }
+ }
+ // Exponential exposure avoids hard clipping when drops overlap.
+ const intensity=blue+teal,exposure=(1-Math.exp(-intensity*1.15))/(intensity||1);
+ return [2+20*headLight+3*reflection,
+  8+(blue*100+teal*225)*exposure+30*headLight+55*reflection,
+  21+(blue*228+teal*200)*exposure+32*headLight+85*reflection];
+}
+
+// Visual adaptation of UnrealHero's Spider Man profile, video 4:00–4:30.
+// Explicit key masks preserve the two slanted lenses on the staggered HERO84.
+const SPIDER_LENSES=new Set([15,16,17,25,26,29,30,31,32,37,38,39,40,43,44,45,46,50,51,52,53,57,58,59,62,63,64]);
+const SPIDER_RIM=new Set([2,3,10,11,14,18,24,27,28,33,36,41,42,47,49,54,56,60,61,65,69,70,71]);
+function spiderMaskColor(key,t){
+ const x=(key.x+key.w/2-20)/650,y=(key.y-37)/195;
+ // A travelling cool sheen replaces the video's interactive/audio modulation.
+ // The red mask and eyes remain visible throughout; no full-board blackouts.
+ const sweep=wave(t*.66)*1.5-.25;
+ const shine=Math.exp(-(((x-sweep)/.17)**2));
+ if(SPIDER_LENSES.has(key.id)){
+  const white=.40+.32*shine+.09*wave(t*.8+y*3);
+  const level=232+23*white;return [level,level,level];
+ }
+ if(SPIDER_RIM.has(key.id))return [3,3,3];
+ return [178+48*shine,2+4*shine,7+8*shine];
+}
+
+function spiderSwingColor(key,t,dark=false){
+ const px=(key.x+key.w/2-20)/650,py=(key.y-37)/195,pose=swingPose(t);let c;
+
+  const column=Math.floor(px*16),roof=.80-noise(column+401)*.16;
+  c=py>roof?[5,13,32]:[1,2,8];
+  if(py>roof&&noise(column*7+Math.round(py*5))>.65)c=[18,18,28];
+  if(dark)c=[0,0,0];
+  // Pale web from a fixed anchor to the raised hand.
+  const web=segmentDistance(px,py,.5,-.12,pose.x,pose.y+.03);
+  c=mix(c,[165,200,240],Math.exp(-((web/.022)**2))*.8);
+  for(let n=4;n>=1;n--){const old=swingPose(t-n*.11),d=((px-old.x)/.08)**2+((py-old.y-.14)/.16)**2;c=mix(c,[90,8,38],Math.exp(-d)*(5-n)*.035);}
+  const sx=pose.x,sy=pose.y,lean=pose.lean;
+  const line=(ax,ay,bx,by,w)=>Math.exp(-((segmentDistance(px,py,ax,ay,bx,by)/w)**2));
+  const legs=Math.max(line(sx+lean,sy+.21,sx-.065+lean,sy+.36,.036),line(sx+lean,sy+.21,sx+.085+lean,sy+.32,.036));
+  c=mix(c,[12,75,255],legs);
+  const body=Math.exp(-(((px-sx-lean*.5)/.05)**2+((py-sy-.14)/.105)**2));
+  const head=Math.exp(-(((px-sx)/.05)**2+((py-sy)/.075)**2));
+  const arms=Math.max(line(sx+lean*.5,sy+.1,sx-.025,sy-.065,.029),line(sx+lean*.5,sy+.1,sx+.11,sy+.045,.027));
+  c=mix(c,[255,16,36],Math.max(head,body,arms));
+  // A small cool highlight reads as the mask at low keyboard resolution.
+  const mask=Math.exp(-(((px-sx-.012)/.024)**2+((py-sy+.012)/.027)**2));
+  c=mix(c,[225,240,255],mask*.85);return c;
+ }
+
+
+const ease01=n=>{const q=clamp(n);return q*q*(3-2*q);};
+function spiderSequenceState(t){
+ const p=fract(t/20)*20;
+ const swing=ease01((p-5)/1.1)*(1-ease01((p-12.9)/1.1));
+ let blink=0;
+ for(const at of [1.6,3.25,15.6,17.1]){
+  const d=Math.abs(p-at);blink=Math.max(blink,1-ease01((d-.045)/.24));
+ }
+ return {p,swing,aperture:1-blink};
+}
+function spiderSequenceColor(key,t){
+ const state=spiderSequenceState(t),x=(key.x+key.w/2-20)/650,y=(key.y-37)/195;
+ let mask=spiderMaskColor(key,Math.sin(state.p*Math.PI/10));
+ if(SPIDER_LENSES.has(key.id)){
+  // The lids close from both edges, retaining the angled eye silhouette.
+  const center=.47+.20*(.25-Math.abs(x-.5));
+  const halfHeight=.37*state.aperture;
+  const opening=ease01((halfHeight-Math.abs(y-center))/.065)*ease01(state.aperture/.12);
+  mask=mix([4,1,4],mask,opening);
+ }
+ return mix(mask,spiderSwingColor(key,state.p-6,true),state.swing);
+}
+function bunnyGrooveColor(key,t){
+ // Re-drawn for six keyboard rows: pink hair, floppy ears, dark outfit and
+ // raspberry ribbons. Original GIF pixels and lettering are not embedded.
+ const p=t*Math.PI*2/3.6,x=(key.x+key.w/2-20)/650,y=(key.y-37)/195;
+ const sway=.065*Math.sin(p),bob=.035*Math.cos(p*2),cx=.5+sway;
+ let c=[31+12*wave(x*8+p),1,9+5*wave(y*6-p)];
+ const ribbon=Math.exp(-(((y-(.5+.23*Math.sin(x*5-p)))/.09)**2));
+ c=mix(c,[115,3,31],ribbon*.65);
+ const line=(ax,ay,bx,by,w)=>Math.exp(-((segmentDistance(x,y,ax,ay,bx,by)/w)**2));
+ const blob=(ax,ay,rx,ry)=>Math.exp(-(((x-ax)/rx)**4+((y-ay)/ry)**4));
+ // Ears tilt in opposing arcs, with broad soft edges between physical keys.
+ for(const side of [-1,1]){
+  const flap=.065*Math.sin(p+.6*side);
+  const ear=line(cx+side*.06,.24+bob,cx+side*(.20+.04*Math.cos(p)),.05+bob+flap,.044);
+  c=mix(c,[223,107,157],ear);
+  c=mix(c,[104,28,65],line(cx+side*.065,.23+bob,cx+side*.19,.07+bob+flap,.017)*.8);
+  const hair=blob(cx+side*.12,.46+bob,.065,.24);
+  c=mix(c,[208,106,145],hair*.88);
+ }
+ c=mix(c,[7,13,22],blob(cx-sway*.22,.81+bob,.15,.30));
+ c=mix(c,[65,101,119],blob(cx,.73+bob,.105,.10)*.7);
+ const face=blob(cx,.35+bob,.105,.16);
+ c=mix(c,[237,167,180],face);
+ const fringe=blob(cx,.23+bob,.115,.08);c=mix(c,[218,128,162],fringe);
+ for(const side of [-1,1]){
+  const eye=line(cx+side*.065,.36+bob,cx+side*.022,.38+bob,.012);
+  c=mix(c,[35,10,31],eye*.95);
+ }
+ c=mix(c,[239,73,121],blob(cx,.43+bob,.021,.022)*.7);
+ const bow=line(cx-.055,.57+bob,cx+.055,.57+bob,.02);c=mix(c,[145,55,105],bow*.7);
+ return c;
+}
+
+
+// Enlarged portrait: explicit hair, pale face, violet eyes and dark collar.
+const ASTOLFO_PORTRAIT=[
+ '..DKP......PKD..',
+ '..PPHPPHHPPHPP..',
+ '.PHHFFFHHFFFHHP.',
+ '.PPFVVFFFFVVFPP.',
+ '..PPFFFRRFFFPP..',
+ '..PPDKWWWWKDPP..'
+];
+const ASTOLFO_INK={D:[64,22,78],K:[17,8,28],P:[255,55,136],H:[255,133,191],F:[255,218,185],V:[106,20,188],R:[210,24,77],W:[205,224,255]};
+function sampleSprite(rows,palette,x,y,bg){
+ const row=Math.floor(y),col=Math.floor(x),fx=fract(x),fy=fract(y);
+ const at=(xx,yy)=>palette[rows[yy]?.[xx]]||bg;
+ return mix(mix(at(col,row),at(col+1,row),fx),mix(at(col,row+1),at(col+1,row+1),fx),fy);
+}
+
+const MIKU_FACE=[
+ '.TTTTPPTTPPTTTT.',
+ '.TTPHHHHHHHPTTT.',
+ 'TTTHFFHHFFHHTTTT',
+ 'TTTFVVFFVVFFTTTT',
+ 'TTTHFFFRRFFHTTTT',
+ 'TTT..KKTTKK..TTT'
+];
+const MIKU_INK={T:[0,195,172],H:[20,255,210],P:[226,10,105],F:[255,224,201],V:[12,75,112],R:[232,64,119],K:[14,24,35]};
+function mikuStageColor(key,t){
+ const phase=fract(t/27)*27,x=(key.x+key.w/2-20)/650*16,y=(key.y-37)/195*5;
+ const bg=[0,3,5];let ink=0;
+ // 5-row capitals move right-to-left, all 12 characters pass through.
+ const text='HATSUNE MIKU',at=x+phase*4.8-16,col=Math.floor(at),row=Math.round(y);
+ const bit=n=>{const ch=text[Math.floor(n/4)];return FONT3[ch]?.[row]?.[((n%4)+4)%4]==='1'?1:0;};
+ ink=bit(col)*(1-fract(at))+bit(col+1)*fract(at);
+ const lettering=mix(bg,[30,255,222],ink);
+ let close=0;for(const b of [17.0,18.5,22.1,23.6])close=Math.max(close,1-ease01((Math.abs(phase-b)-.06)/.22));
+ const portrait=sampleSprite(MIKU_FACE,MIKU_INK,x,y,bg);
+ // Both lenses close together; hair and face stay visible.
+ if(Math.abs(y-3)<.45&&((x>3.5&&x<6.4)||(x>7.4&&x<10.4)))for(let j=0;j<3;j++)portrait[j]=portrait[j]*(1-close)+MIKU_INK.F[j]*close;
+ const enter=ease01((phase-13.2)/1.0),exit=1-ease01((phase-25.5)/1.5);
+ return mix(lettering,portrait,enter).map((v,j)=>bg[j]+(v-bg[j])*exit);
+}
+
+function rawColorAt(id,key,index,time,opt){
+ const x=(key.x-20)/650,y=(key.y-37)/195,xx=x*opt.scale,yy=y*opt.scale,t=time*opt.speed*(opt.reverse?-1:1),dx=x-.5,dy=(y-.5)*.6,r=Math.hypot(dx,dy),angle=Math.atan2(dy,dx),a=hex(opt.color),b=hex(opt.color2);let c=a,v=1,h=0;
+ const extra=extraColor(id,key,index,t,opt);if(extra!==null)return extra.map(n=>Math.round(clamp(n*opt.brightness,0,255)));
+ switch(id){
+ case 'userstudio':c=userStudioColor(key,t);break;
+ case 'mikustage':c=mikuStageColor(key,t);break;
+
+ case 'spidermask':c=spiderSequenceColor(key,t);break;
+ case 'bunnygroove':c=bunnyGrooveColor(key,t);break;
+ case 'mario':return marioColor(key,opt);
+ case 'spiderswing':c=spiderSwingColor(key,t);break;
+ case 'rainbow':c=hsv(xx*.8-t*.13);break;
+ case 'vertical':c=hsv(yy*.8-t*.13);break;
+ case 'diagonal':c=hsv((xx+yy)*.6-t*.15);break;
+ case 'radial':c=hsv(r*3*opt.scale-t*.2);break;
+ case 'spiral':c=hsv(angle/(Math.PI*2)+r*3*opt.scale-t*.15);break;
+ case 'aurora':h=wave(xx*5+t*.5+Math.sin(yy*4-t*.3));c=mix([0,245,160],[155,55,255],h);v=.15+.85*wave(yy*5+Math.sin(xx*8+t)*2);break;
+ case 'ocean':c=mix([0,25,90],[30,235,255],wave(xx*7+yy*3-t*1.1));v=.45+.55*wave(xx*12-yy*5+t*.7);break;
+ case 'lava':c=mix([150,0,65],[255,125,0],wave(xx*8+Math.sin(yy*6+t)+t*.7));break;
+ case 'fire':v=clamp((1-y)*.2+.55+.25*Math.sin(xx*15+t*3)+.18*Math.sin(yy*10-t*4));c=hsv(.01+v*.1,1,v);break;
+ case 'ice':c=mix([15,55,150],[180,250,255],Math.pow(wave(xx*15+yy*9+Math.sin(t)),4));break;
+ case 'matrix':{const col=Math.round(x*15),head=fract(t*(.16+noise(col)*.2)+noise(col+2));const d=fract(head-y);v=Math.pow(1-d,12);c=[30,255,65];if(d<.05)c=[190,255,240];break;}
+ case 'rainsoft':c=silkyRain(key,t,opt.scale);break;
+ case 'rain':{
+  // Drops enter above and leave below the board. No modulo jump on a visible row.
+  c=[0,0,0];const px=(key.x+key.w/2-20)/650;
+  for(let lane=0;lane<16;lane++){
+   const lx=(lane+.5)/16,side=Math.exp(-(((px-lx)/.032)**2));
+   if(side<.005)continue;
+   const travel=t*(.23+noise(lane+42)*.17)*Math.sqrt(opt.scale)+noise(lane+9)*3;
+   const phase=fract(travel),tail=.19+noise(lane+70)*.19;
+   for(let cycle=-1;cycle<=1;cycle++){
+    const head=(phase+cycle)*2.7-.65,d=head-y;
+    const lead=Math.exp(-((d/.11)**2));
+    const trail=Math.exp(-Math.max(0,d)/tail)/(1+Math.exp(clamp(-d*42,-60,60)));
+    const intensity=side*(.75*lead+.60*trail)*(.65+.35*noise(lane+4));
+    const base=mix(a,b,noise(lane));
+    const drop=mix(base,[210,245,255],lead*.65);
+    c=c.map((n,j)=>n+drop[j]*intensity);
+   }
+  }
+  break;
+ }
+ case 'snow':{const p=fract(y-t*.17-noise(Math.round(x*20)));v=Math.pow(1-p,20);c=[180,215,255];break;}
+ case 'stars':v=Math.pow(wave(t*(.5+noise(index))+noise(index+5)*20),18);c=mix([255,210,125],[170,200,255],noise(index));break;
+ case 'comet':{const d=fract(t*.2-xx);v=Math.pow(1-d,10);c=mix(a,b,1-d);break;}
+ case 'meteor':{const d=fract(t*.33-xx-yy*.4);v=Math.pow(1-d,16);c=hsv(noise(Math.floor(t*.33-xx-yy*.4))*.9);break;}
+ case 'scanner':v=Math.exp(-Math.pow((x-wave(t*1.8))*10*opt.scale,2));c=a;break;
+ case 'radar':{const d=fract((angle-t*2)/(Math.PI*2));v=Math.pow(1-d,7);c=mix([10,60,20],[80,255,80],1-d);break;}
+ case 'double':v=Math.max(Math.exp(-Math.pow((x-wave(t))*15,2)),Math.exp(-Math.pow((x-(1-wave(t)))*15,2)));c=x<.5?a:b;break;
+ case 'snake':{const row=Math.round(y*5),u=(row+(row%2?1-x:x))/6;v=Math.pow(1-fract(t*.15-u),12);c=hsv(u-t*.1);break;}
+ case 'breath':v=.05+.95*wave(t*1.6);c=a;break;
+ case 'heartbeat':{const p=fract(t*.55);v=.08+.8*Math.exp(-(((p-.18)/.065)**2))+.6*Math.exp(-(((p-.4)/.08)**2));c=a;break;}
+ case 'sunset':c=mix([255,95,20],[135,20,160],clamp(y*.7+wave(t*.2+x)*.3));break;
+ case 'candy':c=mix([255,110,180],[95,210,255],wave(xx*5-t*.4));break;
+ case 'duotone':c=mix(a,b,wave(xx*6+yy*2-t));break;
+ case 'checker':c=(Math.floor(xx*8+t*.5)+Math.floor(yy*4))%2?a:b;v=.3+.7*wave(t+xx);break;
+ case 'diamonds':c=mix(a,b,wave((Math.abs(dx)+Math.abs(dy))*20*opt.scale-t*2));break;
+ case 'plasma':h=(Math.sin(xx*9+t)+Math.sin(yy*7-t)+Math.sin((xx+yy)*6+t*.5))/6+.5;c=hsv(h+t*.04);break;
+ case 'vortex':h=angle/(2*Math.PI)+.12/(r+.09)*opt.scale+t*.12;c=hsv(h);v=.3+.7*wave(h*12);break;
+ case 'ripple':v=Math.pow(wave(r*28*opt.scale-t*3),6);c=mix(a,b,r*2);break;
+ case 'equalizer':{const height=.1+.9*wave(xx*10+t*1.6+Math.sin(xx*15-t*2));v=1-y<height?1:.025;c=hsv(.33-y*.33);break;}
+ case 'confetti':{const beat=Math.floor(t*3),rnd=noise(index+beat*84);v=rnd>.78?1:.025;c=hsv(noise(index*3+beat));break;}
+ case 'embers':v=Math.pow(wave(index*2.31-t*2-y*3),12);c=mix([255,20,0],[255,165,20],noise(index));break;
+ case 'fireflies':v=Math.pow(wave(t*.9+noise(index)*40),10)*(.3+.7*wave(xx*7+yy*4-t));c=[160,255,45];break;
+ case 'tunnel':{const d=Math.max(Math.abs(dx)*1.2,Math.abs(dy)*2);v=Math.pow(wave(d*30*opt.scale-t*3),5);c=hsv(d*2-t*.1);break;}
+ case 'curtain':c=mix(a,b,wave(yy*5+Math.sin(xx*8+t)*2-t));v=.3+.7*wave(xx*9+t);break;
+ case 'gradient':c=mix(a,b,clamp(x*.7+y*.3));break;
+ case 'solid':c=a;break;
+ case 'rowchase':v=Math.pow(1-fract(t*.3-y*.8),6);c=mix(a,b,y);break;
+ case 'orbit':{const ox=.5+.42*Math.cos(t),oy=.5+.4*Math.sin(t);v=Math.exp(-((x-ox)**2+(y-oy)**2)*35*opt.scale);c=mix(a,b,wave(t));break;}
+ }
+ return c.map(n=>Math.round(clamp(n*v*opt.brightness,0,255)));
+}
+
+function gradeColor(rgb,saturation=1){const hi=Math.max(...rgb),lo=Math.min(...rgb);if(hi===lo)return rgb.map(Math.round);const factor=Math.min(Math.max(0,saturation),hi/(hi-lo));return rgb.map(v=>Math.round(clamp(hi-(hi-v)*factor,0,255)));}
+function colorAt(id,key,index,time,opt){return gradeColor(rawColorAt(id,key,index,time,opt),opt.saturation??1);}
+
+</script><script>
+'use strict';
+const studioBlank=()=>Object.fromEntries(KEYS.map(k=>[k.id,[0,0,0]]));
+let studioProject={version:1,name:'Benim efektim',smooth:true,frames:[{duration:500,colors:studioBlank()}]},studioIndex=0,studioUndo=[],studioPainting=false;
+function studioValidate(p){
+ if(!p||p.version!==1||typeof p.name!=='string'||p.name.length>60||typeof p.smooth!=='boolean'||!Array.isArray(p.frames)||p.frames.length<1||p.frames.length>60)throw new Error('Geçerli bir HERO84 efekt dosyası değil.');
+ return {version:1,name:p.name,smooth:p.smooth,frames:p.frames.map(f=>{if(!Number.isInteger(f.duration)||f.duration<50||f.duration>5000)throw new Error('Kare süresi 50–5000 ms olmalı.');const colors={};for(const k of KEYS){const c=f.colors?.[k.id];if(!Array.isArray(c)||c.length!==3||c.some(v=>!Number.isInteger(v)||v<0||v>255))throw new Error('Tuş renkleri eksik veya geçersiz.');colors[k.id]=[...c];}return{duration:f.duration,colors};})};
+}
+function userStudioColor(key,t){
+ const frames=studioProject.frames,total=frames.reduce((n,f)=>n+f.duration,0);let ms=((t*1000%total)+total)%total,index=0;
+ while(index<frames.length-1&&ms>=frames[index].duration){ms-=frames[index].duration;index++;}
+ const f=frames[index],next=frames[(index+1)%frames.length];return mix(f.colors[key.id],next.colors[key.id],studioProject.smooth?ease01((ms/f.duration-.7)/.3):0);
+}
+function studioSnapshot(){studioUndo.push(JSON.stringify(studioProject));if(studioUndo.length>30)studioUndo.shift();}
+function studioMessage(s){document.getElementById('studioMessage').textContent=s;}
+function studioSave(){try{localStorage.setItem('hero84-studio-v1',JSON.stringify(studioProject));studioMessage('Bu tarayıcıya kaydedildi. Paylaşmak için Efekti indir kullan.');}catch{studioMessage('Tarayıcıya kaydedilemedi. Efekti indir ile dosya olarak sakla.');}}
+function studioDraw(){
+ const canvas=document.getElementById('studioCanvas'),ctx=canvas.getContext('2d');ctx.clearRect(0,0,690,280);ctx.fillStyle='#080d16';ctx.fillRect(0,0,690,280);
+ for(const k of KEYS){const c=studioProject.frames[studioIndex].colors[k.id];ctx.fillStyle='rgb('+c.join(',')+')';ctx.beginPath();ctx.roundRect(k.x,k.y,k.w,k.h,4);ctx.fill();ctx.strokeStyle='#53617a';ctx.stroke();ctx.fillStyle=Math.max(...c)>150?'#080d16':'#ffffff';ctx.font='9px Segoe UI';ctx.textAlign='center';ctx.fillText(k.label,k.x+k.w/2,k.y+k.h/2+3);}
+}
+function studioRender(){
+ const by=id=>document.getElementById(id);by('studioName').value=studioProject.name;by('studioSmooth').checked=studioProject.smooth;by('studioDuration').value=studioProject.frames[studioIndex].duration;by('studioFrames').replaceChildren();
+ studioProject.frames.forEach((f,i)=>{const b=document.createElement('button');b.textContent=(i+1)+' · '+f.duration+' ms';b.className=i===studioIndex?'primary':'';b.onclick=()=>{studioIndex=i;studioRender();};by('studioFrames').append(b);});
+ by('studioCount').textContent=studioProject.frames.length+'/60 kare · '+(studioProject.frames.reduce((n,f)=>n+f.duration,0)/1000).toFixed(1)+' saniye';studioDraw();
+}
+function initStudio(){
+ const by=id=>document.getElementById(id);try{const p=localStorage.getItem('hero84-studio-v1');if(p)studioProject=studioValidate(JSON.parse(p));}catch{studioMessage('Eski stüdyo kaydı açılamadı; boş çalışma hazır.');}
+ by('studioBrush').value='#00e5c8';
+ const edit=fn=>{studioSnapshot();fn();studioSave();studioRender();};
+ const paint=e=>{const canvas=by('studioCanvas'),rect=canvas.getBoundingClientRect(),x=(e.clientX-rect.left)*690/rect.width,y=(e.clientY-rect.top)*280/rect.height;const key=KEYS.find(k=>x>=k.x&&x<=k.x+k.w&&y>=k.y&&y<=k.y+k.h);if(key){studioProject.frames[studioIndex].colors[key.id]=hex(by('studioBrush').value);studioDraw();}};
+ by('studioCanvas').addEventListener('pointerdown',e=>{if(e.button!==0)return;studioSnapshot();studioPainting=true;by('studioCanvas').setPointerCapture(e.pointerId);paint(e);});
+ by('studioCanvas').addEventListener('pointermove',e=>{if(studioPainting)paint(e);});
+ for(const event of ['pointerup','pointercancel','lostpointercapture'])by('studioCanvas').addEventListener(event,()=>{if(studioPainting){studioPainting=false;studioSave();}});
+ by('studioFill').onclick=()=>edit(()=>{const c=hex(by('studioBrush').value);for(const k of KEYS)studioProject.frames[studioIndex].colors[k.id]=[...c];});
+ by('studioClear').onclick=()=>edit(()=>{studioProject.frames[studioIndex].colors=studioBlank();});
+ by('studioAdd').onclick=()=>{if(studioProject.frames.length>=60){studioMessage('En fazla 60 kare eklenebilir.');return;}edit(()=>{studioProject.frames.splice(studioIndex+1,0,JSON.parse(JSON.stringify(studioProject.frames[studioIndex])));studioIndex++;});};
+ by('studioDelete').onclick=()=>{if(studioProject.frames.length===1){studioMessage('En az bir kare kalmalı.');return;}edit(()=>{studioProject.frames.splice(studioIndex,1);studioIndex=Math.min(studioIndex,studioProject.frames.length-1);});};
+ by('studioBack').onclick=()=>{if(!studioUndo.length)return;studioProject=JSON.parse(studioUndo.pop());studioIndex=Math.min(studioIndex,studioProject.frames.length-1);studioSave();studioRender();};
+ by('studioDuration').onchange=()=>{const n=Number(by('studioDuration').value);if(!Number.isInteger(n)||n<50||n>5000){studioMessage('Süre 50–5000 ms arasında olmalı.');studioRender();return;}edit(()=>{studioProject.frames[studioIndex].duration=n;});};
+ by('studioName').onchange=()=>edit(()=>{studioProject.name=by('studioName').value.trim().slice(0,60)||'Benim efektim';});
+ by('studioSmooth').onchange=()=>edit(()=>{studioProject.smooth=by('studioSmooth').checked;});
+ by('studioPlay').onclick=()=>{animationTime=0;clockPrevious=performance.now();choose('userstudio');studioMessage('Efekt seçildi. Klavyede oynatmak için üstte Efekti başlat kullan.');};
+ by('studioCapture').onclick=()=>{if(selected==='userstudio'){studioMessage('Önce kütüphaneden örnek almak istediğin başka bir efekt seç.');return;}edit(()=>{const opt={...options(),brightness:1,speed:1,reverse:false};studioProject.frames=Array.from({length:24},(_,n)=>({duration:150,colors:Object.fromEntries(KEYS.map((k,i)=>[k.id,colorAt(selected,k,i,animationTime+n*.15,opt)]))}));studioProject.name=EFFECTS.find(e=>e.id===selected).name.slice(0,45)+' · kopyam';studioIndex=0;});studioMessage('Seçili efektin 3,6 saniyelik örneği 24 kareye alındı. Her kareyi boyayabilirsin.');};
+ by('studioExport').onclick=()=>{const blob=new Blob([JSON.stringify(studioProject,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='HERO84-efekt.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);};
+ by('studioImport').onchange=async e=>{try{const f=e.target.files?.[0];if(!f)return;if(f.size>1000000)throw new Error('Efekt dosyası 1 MB sınırını aşıyor.');const p=studioValidate(JSON.parse(await f.text()));edit(()=>{studioProject=p;studioIndex=0;});}catch(err){studioMessage(err.message);}finally{e.target.value='';}};
+ studioRender();
+}
+
+</script><script>
+'use strict';
+const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms));
+const storage={get(k,f){try{return JSON.parse(localStorage.getItem(k))??f;}catch{return f;}},set(k,v){localStorage.setItem(k,JSON.stringify(v));}};
+let selected='rainsoft',category='Tümü',favorites=storage.get('hero84-favorites',[]),profiles=storage.get('hero84-profiles',[]);
+let device=null,backup=null,running=false,busy=false,loopPromise=null,dirty=false,frames=0,lastRate=performance.now();
+let barCurrent=null,barSyncLast=-Infinity,barSyncRGB=null;
+const BACKUP='hero84-original-v1';
+let animationTime=0,clockPrevious=performance.now();
+function clock(now){if(selected==='mario')marioTick(now);else marioLast=now;const dt=Math.max(0,(now-clockPrevious)/1000);clockPrevious=now;const o=options();animationTime+=dt*o.speed*(o.reverse?-1:1);return animationTime;}
+function smoothFrame(colors,previous,dt){const alpha=1-Math.exp(-Math.min(.1,Math.max(0,dt))/.065),next={};for(const k of KEYS)next[k.id]=colors[k.id].map((v,j)=>previous?.[k.id]?previous[k.id][j]+(v-previous[k.id][j])*alpha:v);return next;}
+function log(s){$('log').textContent=(new Date().toLocaleTimeString()+' '+s+'\n'+$('log').textContent).slice(0,10000);}
+function status(s){$('status').textContent=s;log(s);}
+function options(){return{speed:+$('speed').value/100,brightness:+$('brightness').value/100,scale:+$('scale').value/100,saturation:+$('saturation').value/100,color:$('color').value,color2:$('color2').value,reverse:$('reverse').checked};}
+function controls(){const ready=!!device?.opened;barControls();$('connect').disabled=busy||ready;$('start').disabled=busy||!ready||running||dirty;$('stop').disabled=busy||!ready||(!running&&!dirty);$('recover').disabled=busy||!ready||running||!storage.get(BACKUP,null);}
+function packet(command){const p=new Uint8Array(63);p.set(command);p[62]=255-((9+p.slice(0,62).reduce((a,b)=>a+b,0))%256);return p;}
+function hasReport(c){return c.some(x=>(x.outputReports||[]).some(r=>r.reportId===9)||hasReport(x.children||[]));}
+function query(command,timeout=1800){
+ const target=device;
+ return new Promise((resolve,reject)=>{
+  if(!target?.opened){reject(new Error('Klavyeyle bağlantı yok.'));return;}
+  let timer,done=false;
+  const finish=(err,p)=>{if(done)return;done=true;clearTimeout(timer);target.removeEventListener('inputreport',receive);err?reject(err):resolve(p);};
+  const receive=e=>{if(e.reportId!==9)return;const p=Array.from(new Uint8Array(e.data.buffer,e.data.byteOffset,e.data.byteLength));if(p.length<13||p[0]!==command[0]||p[1]!==command[1]||p[3]!==command[3]||p[4]!==command[4])return;finish(null,p);};
+  target.addEventListener('inputreport',receive);timer=setTimeout(()=>finish(new Error('USB yanıtı zaman aşımına uğradı. Diğer RGB uygulamalarını kapat.')),timeout);
+  target.sendReport(9,packet(command)).catch(e=>finish(e));
+ });
+}
+async function readColors(){
+ const colors={};
+ for(let i=0;i<KEYS.length;i+=11){const keys=KEYS.slice(i,i+11),ids=keys.flatMap(k=>[k.id>>8,k.id&255]);const p=await query([134,0,0,1,0,ids.length,...ids]);
+  for(let o=6;o+4<p.length-1;o+=5){const id=p[o]*256+p[o+1];if(keys.some(k=>k.id===id))colors[id]=p.slice(o+2,o+5);}
+  if(keys.some(k=>!colors[k.id]))throw new Error('Tuş renkleri eksiksiz yedeklenemedi. Efekt başlatılmadı.');
+ }
+ return colors;
+}
+function framePalette(colors){
+ // Captures only demonstrate up to 3 x 56 payload bytes. 84 IDs leave
+ // room for at most 21 RGB/count groups (84 + 21*4 = 168 bytes).
+ const exact=new Map();
+ for(const k of KEYS){const rgb=colors[k.id].map(v=>Math.round(clamp(v,0,255))),sig=rgb.join(',');if(!exact.has(sig))exact.set(sig,{rgb,ids:[]});exact.get(sig).ids.push(k.id);}
+ const groups=[...exact.values()];
+ // Merge the nearest colors, weighted by affected key count. No color dithering
+ // or black filler frames: every physical key keeps a color in every frame.
+ while(groups.length>21){let best=Infinity,ai=0,bi=1;
+  for(let a=0;a<groups.length;a++)for(let b=a+1;b<groups.length;b++){const x=groups[a],y=groups[b],weight=x.ids.length*y.ids.length/(x.ids.length+y.ids.length);let d=0;for(let j=0;j<3;j++)d+=(x.rgb[j]-y.rgb[j])**2;d*=weight;if(d<best){best=d;ai=a;bi=b;}}
+  const a=groups[ai],b=groups[bi],n=a.ids.length+b.ids.length;a.rgb=a.rgb.map((v,j)=>(v*a.ids.length+b.rgb[j]*b.ids.length)/n);a.ids.push(...b.ids);groups.splice(bi,1);
+ }
+ return groups.map(g=>({rgb:g.rgb.map(Math.round),ids:g.ids}));
+}
+function livePackets(colors){
+ // Captured HERO live protocol: RGB, count, one-byte key IDs; 56-byte chunks.
+ const data=[];for(const {rgb,ids} of framePalette(colors))data.push(...rgb,ids.length,...ids);
+ const total=Math.ceil(data.length/56),packets=[];
+ if(total>3)throw new Error('RGB kare boyutu sınırı aşıldı.');
+ for(let i=0;i<total;i++){const chunk=data.slice(i*56,i*56+56);packets.push(packet([8,1,0,total,i,chunk.length,...chunk]));}
+ return packets;
+}
+async function sendLiveColors(colors){
+ for(const p of livePackets(colors)){await device.sendReport(9,p);await wait(2);}
+}
+async function sendColors(colors){
+ const total=Math.ceil(KEYS.length/11);
+ for(let chunk=0;chunk<total;chunk++){const keys=KEYS.slice(chunk*11,chunk*11+11),data=keys.flatMap(k=>[k.id>>8,k.id&255,...colors[k.id].map(Math.round)]),command=[6,0,0,total,chunk,data.length,...data];
+  // Configuration writes are used only when restoring the saved colors.
+  await query(command);
+ }
+}
+async function restore(){
+ if(!backup)backup=storage.get(BACKUP,null);
+ if(!backup||backup.uuid!==18691697672197||!Array.isArray(backup.mode)||backup.mode.length!==7||KEYS.some(k=>!Array.isArray(backup.colors[k.id])||backup.colors[k.id].length!==3))throw new Error('Geçerli ışık yedeği bulunamadı.');
+ await restoreSyncedBar();await sendColors(backup.colors);await query([4,1,0,1,0,7,...backup.mode]);dirty=false;backup.pending=false;storage.set(BACKUP,backup);status('Önceki ışık ayarları geri yüklendi.');
+}
+$('connect').onclick=async()=>{
+ busy=true;barCurrent=null;controls();let candidate;
+ try{
+  if(!navigator.hid)throw new Error('Bu dosyayı güncel Chrome veya Edge ile aç.');
+  const devices=await navigator.hid.requestDevice({filters:[{vendorId:0x372e,productId:0x103e}]});
+  if(!devices.length){status('Cihaz seçilmedi.');return;}
+  candidate=devices.find(d=>hasReport(d.collections));if(!candidate)throw new Error('RGB arayüzü bulunamadı.');
+  await candidate.open();device=candidate;
+  const p=await query([130,1,0,1,0,6]);const uuid=p.slice(6,12).reduce((a,b)=>a*256+b,0);
+  if(uuid!==18691697672197)throw new Error('Bu uygulama yalnızca doğrulanmış HERO84 HE modeli için.');
+  const cap=await query([130,9,0,1,0,0]);if(cap.length<24||cap[23]<1)throw new Error('Canlı ışık desteği doğrulanamadı.');
+  backup=storage.get(BACKUP,null);dirty=!!backup?.pending;status(dirty?'Önceki oturum yarım kalmış. Önce “Yedekten geri yükle” kullan.':'HERO84 bağlı. Bir efekt seçip başlatabilirsin.');
+ }catch(e){if(candidate?.opened)await candidate.close().catch(()=>{});device=null;status(e.message);}finally{busy=false;controls();}
+};
+$('start').onclick=async()=>{
+ busy=true;controls();
+ try{
+  status('Mevcut ışık ayarları yedekleniyor…');
+  const p=await query([132,1,0,1,0,0]);backup={uuid:18691697672197,mode:p.slice(6,13),colors:await readColors(),pending:true};storage.set(BACKUP,backup);
+  // Live frames replace repeated custom-mode configuration writes.
+  dirty=true;barSyncLast=-Infinity;barSyncRGB=null;running=true;
+  status('Efekt akışı başladı. Görsel sonucu klavyede kontrol et.');
+  loopPromise=run();if(selected==='mario'&&!mario.auto)$('preview').focus();
+ }catch(e){status(e.message);if(dirty){try{await restore();}catch(err){status('Geri yükleme tamamlanamadı: '+err.message);}}}
+ finally{busy=false;controls();}
+};
+async function run(){
+ frames=0;lastRate=performance.now();let previous=null,previousTime=performance.now();
+ try{while(running){const begun=performance.now(),opt={...options(),speed:1,reverse:false},time=clock(begun),colors={};KEYS.forEach((k,i)=>colors[k.id]=colorAt(selected,k,i,time,opt));previous=smoothFrame(colors,previous,(begun-previousTime)/1000);previousTime=begun;await sendLiveColors(previous);await syncBarFrame(previous);frames++;
+  if(performance.now()-lastRate>2000){$('status').textContent='Akış açık · '+(frames*1000/(performance.now()-lastRate)).toFixed(1)+' kare/sn · '+EFFECTS.find(e=>e.id===selected).name;frames=0;lastRate=performance.now();}
+  // Always leave idle time after the complete frame, even after a slow write.
+  await wait(Math.max(30,1000/Math.min(20,+$('fps').value)-(performance.now()-begun)));}
+ }catch(e){running=false;status('Efekt durdu: '+e.message);try{await restore();}catch(err){status('Bağlanıp “Yedekten geri yükle” kullan. '+err.message);}}
+ finally{controls();}
+}
+$('stop').onclick=async()=>{busy=true;running=false;controls();try{await loopPromise;await wait(60);await restore();}catch(e){status('Geri yükleme tamamlanamadı: '+e.message);}finally{busy=false;controls();}};
+$('recover').onclick=async()=>{busy=true;controls();try{await restore();}catch(e){status(e.message);}finally{busy=false;controls();}};
+navigator.hid?.addEventListener('disconnect',e=>{if(e.device===device){running=false;device=null;status('USB bağlantısı kesildi. Yeniden bağlanıp yedeği geri yükle.');controls();}});
+window.addEventListener('beforeunload',e=>{if(dirty||storage.get('hero84-bar-v1',null)?.pending){e.preventDefault();e.returnValue='';}});
+function choose(id){if(id!==selected&&(id==='spidermask'||id==='bunnygroove'||id==='astolfojump'||id==='mikustage')){animationTime=0;clockPrevious=performance.now();}selected=id;marioLast=performance.now();$('gamePanel').hidden=id!=='mario';$('effectTitle').textContent=EFFECTS.find(e=>e.id===id).name;$('favorite').textContent=favorites.includes(id)?'★ Favoriden çıkar':'☆ Favoriye ekle';renderEffects();}
+function renderEffects(){
+ const list=EFFECTS.filter(e=>(category==='Tümü'||category==='Favoriler'&&favorites.includes(e.id)||e.category===category)&&(e.name+' '+tr(e.name)).toLocaleLowerCase('tr').includes($('search').value.toLocaleLowerCase('tr')));
+ $('count').textContent=list.length+' / '+EFFECTS.length;$('libraryStats').textContent=EFFECTS.length+' efekt · '+new Set(EFFECTS.map(e=>e.category)).size+' kategori · '+favorites.length+' favori';$('effects').replaceChildren();
+ for(const e of list){const btn=document.createElement('button');btn.className='effect'+(selected===e.id?' active':'');btn.setAttribute('aria-pressed',String(selected===e.id));const line=document.createElement('i'),title=document.createElement('b'),sub=document.createElement('span');title.textContent=e.name;sub.textContent=e.category+(favorites.includes(e.id)?' · ★':'');btn.append(line,title,sub);btn.onclick=()=>choose(e.id);$('effects').append(btn);}
+}
+for(const cat of ['Tümü','Favoriler',...new Set(EFFECTS.map(e=>e.category))]){const btn=document.createElement('button');btn.textContent=cat;if(cat===category)btn.className='active';btn.onclick=()=>{category=cat;[...$('filters').children].forEach(b=>b.classList.toggle('active',b===btn));renderEffects();};$('filters').append(btn);}
+$('search').oninput=renderEffects;
+for(const id of ['speed','brightness','scale','saturation'])$(id).oninput=()=>{$(id+'Value').textContent=['brightness','saturation'].includes(id)?$(id).value+'%':(+$(id).value/100).toFixed(1)+'×';};
+$('favorite').onclick=()=>{favorites=favorites.includes(selected)?favorites.filter(x=>x!==selected):[...favorites,selected];try{storage.set('hero84-favorites',favorites);}catch{status('Favoriler bu tarayıcıda kaydedilemedi.');}choose(selected);};
+$('save').onclick=()=>{const name=prompt(tr('Profil adı'),EFFECTS.find(e=>e.id===selected).name);if(!name?.trim())return;profiles.push({name:name.trim().slice(0,40),effect:selected,options:options()});profiles=profiles.slice(-16);try{storage.set('hero84-profiles',profiles);renderProfiles();}catch{status('Profil kaydedilemedi.');}};
+function renderProfiles(){$('profiles').replaceChildren();for(const p of profiles){const btn=document.createElement('button');btn.textContent=p.name;btn.onclick=()=>{for(const id of ['speed','brightness','scale','saturation']){$(id).value=(p.options[id]??(id==='saturation'?1.5:1))*100;$(id).oninput();}for(const id of ['color','color2'])$(id).value=p.options[id];$('reverse').checked=p.options.reverse;choose(p.effect);};$('profiles').append(btn);}}
+const ctx=$('preview').getContext('2d');let lastPreview=0;
+function draw(t){requestAnimationFrame(draw);if(t-lastPreview<33)return;lastPreview=t;gameHud();ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,690,280);const opt={...options(),speed:1,reverse:false},time=clock(performance.now());KEYS.forEach((k,i)=>{const c=colorAt(selected,k,i,time,opt),rgb=`rgb(${c.join(',')})`;ctx.fillStyle='#0b101b';ctx.beginPath();ctx.roundRect(k.x,k.y,k.w,k.h,4);ctx.fill();ctx.strokeStyle=rgb;ctx.lineWidth=2;ctx.shadowColor=rgb;ctx.shadowBlur=9;ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=rgb;ctx.globalAlpha=.18;ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#cbd4e5';ctx.font='8px Segoe UI';ctx.textAlign='center';ctx.fillText(k.label.replace('L_','').replace('R_',''),k.x+k.w/2,k.y+k.h/2+3);});}
+choose(selected);renderProfiles();requestAnimationFrame(draw);controls();
+
+function gameHud(){if(selected!=='mario')return;const label=mario.state==='win'?'Bölüm tamamlandı!':mario.state==='over'?'Oyun bitti':mario.paused?'Duraklatıldı':mario.auto?'Otomatik demo':'Sen oynuyorsun';$('gameScore').textContent=label+' · Can '+mario.lives+' · Altın '+mario.coins.size+'/'+MARIO_LEVEL.coins.length+' · Puan '+mario.score;$('gamePause').textContent=mario.paused?'Devam et':'Duraklat';}
+$('gamePlay').onclick=()=>{marioReset(false);$('preview').focus();gameHud();};
+$('gameDemo').onclick=()=>{marioReset(true);gameHud();};
+$('gameRestart').onclick=()=>{marioReset(mario.auto);$('preview').focus();gameHud();};
+$('gamePause').onclick=()=>{mario.paused=!mario.paused;mario.input.left=false;mario.input.right=false;marioLast=performance.now();if(!mario.paused)$('preview').focus();gameHud();};
+function clearGameInput(){mario.input.left=false;mario.input.right=false;mario.jump=false;}
+window.addEventListener('keydown',e=>{if(selected!=='mario'||mario.auto||e.target?.isContentEditable||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target?.tagName))return;if(!['ArrowLeft','ArrowRight','ArrowUp','Space','KeyA','KeyD','KeyW','KeyR','Escape'].includes(e.code))return;e.preventDefault();if(e.code==='Escape'&&!e.repeat){mario.paused=!mario.paused;clearGameInput();}else if(e.code==='KeyR'&&!e.repeat)marioReset(false);else if(!mario.paused){if(['ArrowLeft','KeyA'].includes(e.code))mario.input.left=true;if(['ArrowRight','KeyD'].includes(e.code))mario.input.right=true;if(['ArrowUp','Space','KeyW'].includes(e.code)&&!e.repeat)mario.jump=true;}gameHud();});
+window.addEventListener('keyup',e=>{if(['ArrowLeft','KeyA'].includes(e.code))mario.input.left=false;if(['ArrowRight','KeyD'].includes(e.code))mario.input.right=false;});
+window.addEventListener('blur',()=>{clearGameInput();if(selected==='mario'&&!mario.auto){mario.paused=true;gameHud();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&selected==='mario'&&!mario.auto){clearGameInput();mario.paused=true;gameHud();}});
+
+$('randomEffect').onclick=()=>{const pool=EFFECTS.filter(e=>e.id!==selected&&e.id!=='mario');choose(pool[Math.floor(Math.random()*pool.length)].id);};
+$('vivid').onclick=()=>{$('saturation').value=150;$('saturation').oninput();};
+$('neutral').onclick=()=>{$('saturation').value=100;$('saturation').oninput();};
+
+
+
+
+// Official AULA edge-light config: read 84/06, write 04/06. Never stream it.
+
+function barControls(){const blocked=busy||running||!device?.opened;$('barRead').disabled=blocked;$('barApply').disabled=blocked||!barCurrent;$('barRestore').disabled=blocked||!storage.get('hero84-bar-v1',null)?.pending;}
+async function readBar(){const p=await query([132,6,0,1,0,0]);if(p[5]<7)throw new Error('Üst bar ayarı doğrulanamadı; değişiklik yapılmadı.');return p.slice(6,13);}
+function barShow(raw){$('barColor').value='#'+raw.slice(2,5).map(v=>v.toString(16).padStart(2,'0')).join('');$('barMode').value=[0,1,2,3,4,5].includes(raw[0])?String(raw[0]):'keep';$('barSpeed').value=raw[6]<=4?String(raw[6]):'keep';$('barLevel').value=raw[5]<=4?String(raw[5]):'keep';$('barInfo').textContent='Bar ayarı okundu. Efektini seçip Uygula düğmesine bas. Sabit ışık akışı durdurur.';}
+async function barAction(action){if(busy||running||!device?.opened)return;busy=true;controls();try{await action();}catch(e){$('barInfo').textContent=e.message;}finally{busy=false;controls();}}
+$('barRead').onclick=()=>barAction(async()=>{barCurrent=null;barCurrent=await readBar();barShow(barCurrent);});
+$('barApply').onclick=()=>barAction(async()=>{
+ if(!barCurrent)throw new Error('Önce bar ayarını oku.');
+ const before=await readBar();let saved=storage.get('hero84-bar-v1',null);
+ if(!saved?.pending){saved={uuid:18691697672197,raw:before,pending:true};storage.set('hero84-bar-v1',saved);}
+ if(saved.uuid!==18691697672197)throw new Error('Üst bar yedeği bu modele ait değil.');
+ const pick=(id,old,max)=>{const value=$(id).value;if(value==='keep')return old;const n=Number(value);if(value===''||!Number.isInteger(n)||n<0||n>max)throw new Error('Geçersiz bar ayarı.');return n;};
+ const raw=[pick('barMode',before[0],5),0,...hex($('barColor').value),pick('barLevel',before[5],4),pick('barSpeed',before[6],4)];
+ await query([4,6,0,1,0,7,...raw]);
+ const actual=await readBar();if(actual.some((v,i)=>v!==raw[i]))throw new Error('Bar ayarı geri okumayla doğrulanamadı. Eski bar ayarını geri yükleyebilirsin.');
+ $('barInfo').textContent='Bar ayarı gönderildi ve geri okundu. Fiziksel ışığı kontrol et. Yedek saklanıyor.';
+});
+$('barRestore').onclick=()=>barAction(async()=>{
+ const saved=storage.get('hero84-bar-v1',null);
+ if(saved?.uuid!==18691697672197||!Array.isArray(saved.raw)||saved.raw.length!==7||saved.raw.some(v=>!Number.isInteger(v)||v<0||v>255))throw new Error('Geçerli üst bar yedeği yok.');
+ await query([4,6,0,1,0,7,...saved.raw]);const actual=await readBar();if(actual.some((v,i)=>v!==saved.raw[i]))throw new Error('Bar geri yüklemesi doğrulanamadı. Yedek korundu.');
+ saved.pending=false;storage.set('hero84-bar-v1',saved);barCurrent=actual;barShow(actual);$('barInfo').textContent='Önceki üst bar ayarı geri yüklendi.';
+});
+barControls();
+
+
+function barFrameColor(colors){
+ // Brightness-weighted average: black surroundings do not wash out a character.
+ let total=0,sum=[0,0,0];for(const rgb of Object.values(colors)){const w=Math.max(...rgb)/255;total+=w;for(let j=0;j<3;j++)sum[j]+=rgb[j]*w;}
+ return sum.map(v=>Math.round(total?v/total:0));
+}
+async function restoreSyncedBar(){
+ if(!backup?.syncBar)return;
+ const original=backup.syncBar;await query([4,6,0,1,0,7,...original]);
+ const actual=await readBar();if(actual.some((v,i)=>v!==original[i]))throw new Error('Eşlenen bar geri yüklenemedi; yedek korunuyor.');
+ delete backup.syncBar;storage.set(BACKUP,backup);barSyncRGB=null;
+ $('barInfo').textContent='Eşleme öncesindeki bar ayarı geri yüklendi.';
+}
+async function syncBarFrame(colors){
+ if(!$('barSync').checked){await restoreSyncedBar();return;}
+ const now=performance.now();if(now-barSyncLast<1000)return;
+ const style=$('barSyncStyle').value;const palette=barDominantColors(colors);const rgb=palette[style==='palette'?Math.floor(now/2500)%palette.length:0],mode=style==='palette'?3:Number(style||3);
+ if(![1,3,4].includes(mode))throw new Error('Geçersiz bar eşleme modu.');
+ if(barSyncRGB&&barSyncRGB.mode===mode&&rgb.every((v,i)=>Math.abs(v-barSyncRGB.rgb[i])<12))return;
+ if(!backup.syncBar){const original=await readBar();backup.syncBar=original;storage.set(BACKUP,backup);}
+ // Serialized after the complete key frame; never interleave USB packets.
+ await query([4,6,0,1,0,7,mode,0,...rgb,backup.syncBar[5],backup.syncBar[6]]);
+ barSyncLast=performance.now();barSyncRGB={rgb,mode};
+ $('barInfo').textContent='Deneysel eşleme açık · en fazla saniyede 1 renk güncellemesi. Kesinti olursa tiki kapat.';
+}
+
+function barDominantColors(colors){
+ const groups=new Map();for(const c of Object.values(colors)){if(Math.max(...c)<15)continue;const key=c.map(v=>Math.round(v/48)).join(',');let g=groups.get(key);if(!g){g={n:0,rgb:[0,0,0]};groups.set(key,g);}g.n++;c.forEach((v,j)=>g.rgb[j]+=v);}
+ return [...groups.values()].sort((a,b)=>b.n-a.n).slice(0,3).map(g=>g.rgb.map(v=>Math.round(v/g.n))).concat(groups.size?[]:[[0,0,0]]);
+}
+
+initStudio();
+
+</script><script>initLanguage();</script></html>

@@ -1,0 +1,8 @@
+node_modules/
+work/
+*browser-profile*/
+*.zip
+*.pcapng
+*.mp4
+astolfo-video.js
+.env*
