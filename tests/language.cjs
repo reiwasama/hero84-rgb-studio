@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+let change,observe;
+const text={nodeType:3,nodeValue:'Klavyeye bağlan',parentElement:{closest:()=>false}};
+const attr={placeholder:'Efekt ara…'};
+const body={nodeType:1,childNodes:[text],hasAttribute:k=>k in attr,getAttribute:k=>attr[k],setAttribute:(k,v)=>attr[k]=v};
+const select={value:'',addEventListener:(_,fn)=>change=fn};
+const ctx={navigator:{language:'en'},localStorage:{getItem:()=>null,setItem(){}},document:{createTreeWalker(){},body,documentElement:{},getElementById:()=>select},MutationObserver:class{constructor(fn){observe=fn}observe(){}}};
+vm.createContext(ctx);vm.runInContext(fs.readFileSync(require('path').join(__dirname,'../src/i18n.js'),'utf8'),ctx);vm.runInContext('initLanguage()',ctx);
+assert.equal(text.nodeValue,'Connect keyboard');assert.equal(attr.placeholder,'Search effects…');
+select.value='tr';change();assert.equal(text.nodeValue,'Klavyeye bağlan');assert.equal(attr.placeholder,'Efekt ara…');
+text.nodeValue='Efekti başlat';observe([{type:'characterData',target:text}]);select.value='en';change();assert.equal(text.nodeValue,'Start effect');
+observe([{type:'characterData',target:text}]);select.value='tr';change();assert.equal(text.nodeValue,'Efekti başlat');
+console.log('PASS: initial language, switching both ways, attributes, live updates and observer stability');
